@@ -148,13 +148,13 @@ document.addEventListener('DOMContentLoaded', function () {
           body: JSON.stringify(orderPayload)
         });
 
-        // Fallback to WP REST endpoint if Netlify serverless function is unavailable
-        if (!res.ok) {
+        // Fallback to WP REST endpoint if Netlify serverless function returned non-JSON / network error
+        if (!res.data && !res.ok) {
           let orderEndpoint = `${config.restUrl}create-order`;
           if (config.restUrl === '/wp-json/') {
             orderEndpoint = `${config.restUrl}aarpoo/v1/create-order`;
           }
-          res = await safeFetchJson(orderEndpoint, {
+          const fallbackRes = await safeFetchJson(orderEndpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -162,11 +162,12 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: JSON.stringify(orderPayload)
           });
+          if (fallbackRes.data) res = fallbackRes;
         }
 
         const orderData = res.data || {};
 
-        if (!res.ok || !orderData.success) {
+        if (!orderData.success) {
           const errMsg = orderData.message || 'Unable to connect to booking gateway. Please try again.';
           throw new Error(errMsg);
         }

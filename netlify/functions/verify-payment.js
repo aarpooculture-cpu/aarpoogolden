@@ -40,7 +40,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || 'xG57Z3Nh5ZnrHRQ5YavFUtcI';
 
     if (!key_secret) {
       return {

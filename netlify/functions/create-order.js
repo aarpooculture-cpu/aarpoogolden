@@ -22,8 +22,8 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const key_id = process.env.RAZORPAY_KEY_ID;
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_ThByzGJVpxGnu9';
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || 'xG57Z3Nh5ZnrHRQ5YavFUtcI';
 
     if (!key_id || !key_secret) {
       return {
