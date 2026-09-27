@@ -19,7 +19,7 @@ function getSupabaseClient() {
 async function saveBooking(bookingData) {
   const supabase = getSupabaseClient();
   if (!supabase) {
-    console.warn('[Supabase] Warning: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables are missing.');
+    console.warn('[Supabase] Warning: SUPABASE credentials missing.');
     return { success: false, warning: 'Database credentials missing' };
   }
 
@@ -121,4 +121,74 @@ async function saveContactMessage(contactData) {
   }
 }
 
-module.exports = { saveBooking, savePartnerInquiry, saveContactMessage };
+/**
+ * Retrieves all ticket bookings from Supabase.
+ */
+async function getBookings(limit = 100) {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { success: false, error: 'Supabase credentials missing' };
+
+  try {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data || [] };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Retrieves all partner proposals from Supabase.
+ */
+async function getPartnerInquiries(limit = 100) {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { success: false, error: 'Supabase credentials missing' };
+
+  try {
+    const { data, error } = await supabase
+      .from('partner_inquiries')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data || [] };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Retrieves all general contact messages from Supabase.
+ */
+async function getContactMessages(limit = 100) {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { success: false, error: 'Supabase credentials missing' };
+
+  try {
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data || [] };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+module.exports = {
+  saveBooking,
+  savePartnerInquiry,
+  saveContactMessage,
+  getBookings,
+  getPartnerInquiries,
+  getContactMessages
+};
