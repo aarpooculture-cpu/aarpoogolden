@@ -1400,8 +1400,9 @@ img {
     font-size: 1.1rem;
   }
 
-  .nav-cta {
-    display: none !important;
+  .nav-cta .btn-gold {
+    padding: 0.5rem 1.1rem;
+    font-size: 0.85rem;
   }
 
   /* Mobile Nav Backdrop Overlay */

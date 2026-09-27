@@ -38,9 +38,6 @@
                     <li><a href="<?php echo esc_url(home_url('/about')); ?>" class="nav-link <?php echo is_page('about') ? 'active' : ''; ?>">About</a></li>
                     <li><a href="<?php echo esc_url(home_url('/partner')); ?>" class="nav-link <?php echo is_page('partner') ? 'active' : ''; ?>">Partner</a></li>
                 </ul>
-                <div class="site-nav-mobile-cta" style="margin-top:1.5rem; width:100%;">
-                    <a href="<?php echo is_front_page() ? '#booking-section' : esc_url(home_url('/#booking-section')); ?>" class="btn-gold" style="width:100%; justify-content:center;">Book tickets →</a>
-                </div>
             </nav>
 
             <div class="nav-cta">
