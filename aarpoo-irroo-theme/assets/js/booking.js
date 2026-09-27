@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', function () {
       toggleBtn.setAttribute('aria-expanded', 'true');
       siteNav.classList.add('open');
       overlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
     }
 
     function closeNav() {
@@ -41,7 +40,6 @@ document.addEventListener('DOMContentLoaded', function () {
       toggleBtn.setAttribute('aria-expanded', 'false');
       siteNav.classList.remove('open');
       overlay.classList.remove('active');
-      document.body.style.overflow = '';
     }
 
     toggleBtn.addEventListener('click', () => {

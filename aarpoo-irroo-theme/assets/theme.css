@@ -1348,29 +1348,39 @@ img {
 
   .header-inner {
     height: 68px;
-    flex-wrap: wrap;
+    position: relative;
   }
 
   .site-nav {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 280px;
-    height: 100vh;
-    height: 100dvh;
-    background: rgba(10, 11, 16, 0.97);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    max-height: 0;
+    overflow: hidden;
+    background: rgba(10, 11, 16, 0.98);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     flex-direction: column;
-    padding: 6rem 2rem 3rem;
+    padding: 0 1.5rem;
     z-index: 100;
-    transition: right 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    visibility: hidden;
+    transform: none;
+    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, padding 0.35s ease, visibility 0.3s ease;
   }
 
   .site-nav.open {
-    right: 0;
+    max-height: 450px;
+    opacity: 1;
+    visibility: visible;
+    padding: 1.25rem 1.5rem 1.75rem;
   }
 
   .nav-links {
@@ -1961,16 +1971,9 @@ img {
     transition: transform 0.1s ease;
   }
 
-  /* Hardware-accelerated slide drawer for Mobile Navigation */
+  /* Top Dropdown Animation for Mobile Navigation (No side sliding) */
   .site-nav {
-    transform: translateX(100%);
-    right: 0 !important;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    will-change: transform;
-  }
-
-  .site-nav.open {
-    transform: translateX(0) !important;
+    transform: none !important;
   }
 
   .mobile-nav-toggle {
