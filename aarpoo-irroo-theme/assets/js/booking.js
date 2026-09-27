@@ -643,4 +643,53 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial call
     setTimeout(updateTextReveal, 100);
   })();
+
+  // --------------------------------------------------------------------------
+  // 8. Sticky Mobile Quick-Booking Bar Controller
+  // --------------------------------------------------------------------------
+  (function initMobileStickyBar() {
+    let stickyBar = document.querySelector('.mobile-sticky-bar');
+    if (!stickyBar) {
+      stickyBar = document.createElement('div');
+      stickyBar.className = 'mobile-sticky-bar';
+      stickyBar.innerHTML = `
+        <div class="bar-info">
+          <span class="bar-title">Aarpoo Vol. 02</span>
+          <span class="bar-price">₹599 / Seat • Early Bird</span>
+        </div>
+        <a href="#booking-section" class="btn-gold">Book Now →</a>
+      `;
+      document.body.appendChild(stickyBar);
+    }
+
+    const bookingSection = document.getElementById('booking-section');
+    const heroSection = document.getElementById('hero');
+
+    function checkStickyVisibility() {
+      if (window.innerWidth > 768) {
+        stickyBar.classList.remove('visible');
+        document.body.classList.remove('has-sticky-bar');
+        return;
+      }
+
+      const heroBottom = heroSection ? heroSection.getBoundingClientRect().bottom : 300;
+      const bookingRect = bookingSection ? bookingSection.getBoundingClientRect() : null;
+
+      const scrolledPastHero = heroBottom < 100;
+      const inBookingForm = bookingRect && (bookingRect.top < window.innerHeight && bookingRect.bottom > 0);
+
+      if (scrolledPastHero && !inBookingForm) {
+        stickyBar.classList.add('visible');
+        document.body.classList.add('has-sticky-bar');
+      } else {
+        stickyBar.classList.remove('visible');
+        document.body.classList.remove('has-sticky-bar');
+      }
+    }
+
+    window.addEventListener('scroll', checkStickyVisibility, { passive: true });
+    window.addEventListener('resize', checkStickyVisibility);
+    checkStickyVisibility();
+  })();
 });
+

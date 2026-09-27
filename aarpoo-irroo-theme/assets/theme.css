@@ -1930,3 +1930,157 @@ img {
     font-size: 1.5rem;
   }
 }
+
+/* ==========================================================================
+   17. ENHANCED MOBILE TOUCH OPTIMIZATIONS & iOS SAFARI ACCESSIBILITY
+   ========================================================================== */
+
+/* Prevent forced iOS Safari auto-zoom on form inputs */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="password"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Full-width touch targets for primary action buttons */
+  .btn-gold,
+  .btn-outline,
+  .btn-razorpay-pay {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-gold:active,
+  .btn-outline:active,
+  .seat-num-btn:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+  }
+
+  /* Hardware-accelerated slide drawer for Mobile Navigation */
+  .site-nav {
+    transform: translateX(100%);
+    right: 0 !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    will-change: transform;
+  }
+
+  .site-nav.open {
+    transform: translateX(0) !important;
+  }
+
+  .mobile-nav-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  /* Mobile Seat Picker optimization */
+  .seat-num-btn {
+    min-width: 46px;
+    min-height: 46px;
+    border-radius: var(--radius-md);
+    touch-action: manipulation;
+  }
+
+  /* Hero Info Grid 3-column micro layout on mobile */
+  .hero-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    padding: 0.85rem 0.6rem;
+    text-align: center;
+  }
+
+  .info-column h6 {
+    font-size: 0.6rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .info-column p {
+    font-size: 0.85rem;
+  }
+
+  .info-column small {
+    font-size: 0.7rem;
+  }
+}
+
+/* Sticky Bottom Booking Bar for Mobile Screen Real Estate */
+.mobile-sticky-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-sticky-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 95;
+    background: rgba(10, 11, 16, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255, 184, 77, 0.3);
+    padding: 0.75rem 1.25rem;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.5);
+    transform: translateY(120%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mobile-sticky-bar.visible {
+    transform: translateY(0);
+  }
+
+  .mobile-sticky-bar .bar-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-sticky-bar .bar-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.2;
+  }
+
+  .mobile-sticky-bar .bar-price {
+    font-size: 0.78rem;
+    color: var(--primary-gold);
+    font-weight: 700;
+  }
+
+  .mobile-sticky-bar .btn-gold {
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem;
+    min-height: 40px;
+    border-radius: var(--radius-full);
+  }
+
+  /* Extra bottom padding on body when sticky bar is active */
+  body.has-sticky-bar {
+    padding-bottom: 70px;
+  }
+}
