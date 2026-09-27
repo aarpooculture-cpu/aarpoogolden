@@ -1391,12 +1391,7 @@ img {
   }
 
   .nav-cta {
-    order: 2;
-  }
-
-  .nav-cta .btn-gold {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.85rem;
+    display: none !important;
   }
 
   /* Mobile Nav Backdrop Overlay */
