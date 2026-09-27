@@ -1,24 +1,29 @@
 const { createClient } = require('@supabase/supabase-js');
 
 /**
- * Saves a verified ticket booking record into Supabase PostgreSQL database.
- * 
- * Expected Environment Variables:
- * - SUPABASE_URL: e.g. https://xyzcompany.supabase.co
- * - SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY)
+ * Helper to initialize Supabase client
  */
-async function saveBooking(bookingData) {
+function getSupabaseClient() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
+    return null;
+  }
+  return createClient(supabaseUrl, supabaseKey);
+}
+
+/**
+ * Saves a verified ticket booking record into Supabase PostgreSQL database.
+ */
+async function saveBooking(bookingData) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
     console.warn('[Supabase] Warning: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables are missing.');
     return { success: false, warning: 'Database credentials missing' };
   }
 
   try {
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
     const { data, error } = await supabase
       .from('bookings')
       .insert([{
@@ -40,7 +45,6 @@ async function saveBooking(bookingData) {
       return { success: false, error: error.message };
     }
 
-    console.log('[Supabase] Booking saved successfully:', data);
     return { success: true, data };
   } catch (err) {
     console.error('[Supabase] Unexpected Error:', err);
@@ -48,4 +52,73 @@ async function saveBooking(bookingData) {
   }
 }
 
-module.exports = { saveBooking };
+/**
+ * Saves a partner proposal inquiry into Supabase PostgreSQL database.
+ */
+async function savePartnerInquiry(partnerData) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    console.warn('[Supabase] Warning: SUPABASE credentials missing.');
+    return { success: false, warning: 'Database credentials missing' };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('partner_inquiries')
+      .insert([{
+        brand_name: partnerData.brand_name || '',
+        contact_person: partnerData.contact_person || '',
+        email: partnerData.email || '',
+        phone: partnerData.phone || '',
+        partner_type: partnerData.partner_type || '',
+        message: partnerData.message || '',
+        created_at: new Date().toISOString()
+      }])
+      .select();
+
+    if (error) {
+      console.error('[Supabase] Partner Inquiry Insert Error:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error('[Supabase] Unexpected Error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Saves a general contact form inquiry into Supabase PostgreSQL database.
+ */
+async function saveContactMessage(contactData) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    console.warn('[Supabase] Warning: SUPABASE credentials missing.');
+    return { success: false, warning: 'Database credentials missing' };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .insert([{
+        name: contactData.name || '',
+        email: contactData.email || '',
+        message: contactData.message || '',
+        created_at: new Date().toISOString()
+      }])
+      .select();
+
+    if (error) {
+      console.error('[Supabase] Contact Message Insert Error:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error('[Supabase] Unexpected Error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+module.exports = { saveBooking, savePartnerInquiry, saveContactMessage };

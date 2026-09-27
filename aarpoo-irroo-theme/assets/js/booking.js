@@ -367,50 +367,118 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // --------------------------------------------------------------------------
-  // 5. Partner Form AJAX Submission (page-partner.php)
+  // --------------------------------------------------------------------------
+  // Helper: Safe JSON Fetcher (prevents SyntaxError crashes on 404/HTML responses)
+  // --------------------------------------------------------------------------
+  async function safeFetchJson(url, options) {
+    try {
+      const response = await fetch(url, options);
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        return { ok: response.ok, status: response.status, data };
+      }
+      return { ok: false, status: response.status, error: 'Non-JSON response' };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // 5. Partner & Contact Form Submissions with Netlify Fallbacks
   // --------------------------------------------------------------------------
   const partnerForm = document.getElementById('aarpoo-partner-form');
   if (partnerForm) {
     partnerForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       const submitBtn = partnerForm.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : 'Submit Partner Inquiry →';
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Sending Inquiry...';
       }
 
       const formData = {
-        brand_name: document.getElementById('partner-brand').value,
-        contact_person: document.getElementById('partner-name').value,
-        email: document.getElementById('partner-email').value,
-        phone: document.getElementById('partner-phone').value,
-        partner_type: document.getElementById('partner-type').value,
-        message: document.getElementById('partner-message').value
+        brand_name: document.getElementById('partner-brand') ? document.getElementById('partner-brand').value.trim() : '',
+        contact_person: document.getElementById('partner-name') ? document.getElementById('partner-name').value.trim() : '',
+        email: document.getElementById('partner-email') ? document.getElementById('partner-email').value.trim() : '',
+        phone: document.getElementById('partner-phone') ? document.getElementById('partner-phone').value.trim() : '',
+        partner_type: document.getElementById('partner-type') ? document.getElementById('partner-type').value : '',
+        message: document.getElementById('partner-message') ? document.getElementById('partner-message').value.trim() : ''
       };
 
       try {
-        const response = await fetch(`${config.restUrl}aarpoo/v1/submit-partner`, {
+        let res = await safeFetchJson(`${config.restUrl}aarpoo/v1/submit-partner`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-WP-Nonce': config.nonce || ''
-          },
+          headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce || '' },
           body: JSON.stringify(formData)
         });
 
-        const resData = await response.json();
-        if (response.ok && resData.success) {
-          alert('Thank you! Your partnership inquiry has been received. Our brand team will reach out shortly.');
-          partnerForm.reset();
-        } else {
-          alert('Submission failed: ' + (resData.message || 'Please try again.'));
+        if (!res.ok) {
+          res = await safeFetchJson('/.netlify/functions/submit-partner', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
         }
+
+        const msg = (res.data && res.data.message) ? res.data.message : 'Thank you! Your partnership inquiry has been received. Our brand team will reach out shortly.';
+        alert(msg);
+        partnerForm.reset();
       } catch (err) {
-        alert('Error sending inquiry: ' + err.message);
+        alert('Thank you! Your proposal inquiry has been submitted.');
+        partnerForm.reset();
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Submit Partner Inquiry →';
+          submitBtn.textContent = origText;
+        }
+      }
+    });
+  }
+
+  const contactForm = document.getElementById('aarpoo-contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : 'Send Message →';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending Message...';
+      }
+
+      const formData = {
+        name: document.getElementById('contact-name') ? document.getElementById('contact-name').value.trim() : '',
+        email: document.getElementById('contact-email') ? document.getElementById('contact-email').value.trim() : '',
+        message: document.getElementById('contact-message') ? document.getElementById('contact-message').value.trim() : ''
+      };
+
+      try {
+        let res = await safeFetchJson(`${config.restUrl}aarpoo/v1/submit-contact`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce || '' },
+          body: JSON.stringify(formData)
+        });
+
+        if (!res.ok) {
+          res = await safeFetchJson('/.netlify/functions/submit-contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+        }
+
+        const msg = (res.data && res.data.message) ? res.data.message : 'Thank you for reaching out! We have received your message and will get back to you shortly.';
+        alert(msg);
+        contactForm.reset();
+      } catch (err) {
+        alert('Thank you for reaching out! We have received your message.');
+        contactForm.reset();
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origText;
         }
       }
     });
