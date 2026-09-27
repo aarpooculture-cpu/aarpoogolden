@@ -1,0 +1,11 @@
+{
+  "name": "aarpoo-irroo-events",
+  "version": "1.0.0",
+  "description": "Aarpoo Irroo Festivals - Ticketing Portal with Razorpay Standard Checkout & Netlify Serverless Functions",
+  "main": "index.html",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "dotenv": "^16.4.5",
+    "razorpay": "^2.9.4"
+  }
+}

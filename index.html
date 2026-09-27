@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aarpoo Irroo — Cultural Events & Diaspora Portal (Live Preview)</title>
+
+    <!-- Google Fonts: Instrument Serif, DM Serif Display, Plus Jakarta Sans, Noto Serif Malayalam -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Serif:ital@0;1&family=Noto+Serif+Malayalam:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="./aarpoo-irroo-theme/assets/theme.css">
+</head>
+<body>
+
+    <!-- 1. Header Navigation Bar -->
+    <header class="site-header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="#hero" class="site-logo">
+                    <img src="./aarpoo-irroo-theme/assets/images/aarpoo-logo.jpg" alt="Aarpoo Irroo Kathakali Logo" class="brand-logo-img">
+                    <div class="logo-text-group">
+                        <span class="logo-brand">AARPOO IRROO</span>
+                        <span class="logo-tagline">MUSIC • ENERGY • EXPERIENCE</span>
+                    </div>
+                </a>
+
+                <button class="mobile-nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+
+                <nav class="site-nav">
+                    <ul class="nav-links">
+                        <li><a href="#hero" class="nav-link active">Home</a></li>
+                        <li><a href="#events-section" class="nav-link">Events</a></li>
+                        <li><a href="#about-section" class="nav-link">About</a></li>
+                        <li><a href="#partner-section" class="nav-link">Partner</a></li>
+                    </ul>
+                </nav>
+
+                <div class="nav-cta">
+                    <a href="#booking-section" class="btn-gold">
+                        Book tickets →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. Main Content -->
+    <main>
+        <!-- HERO SECTION WITH ANIMATED CONCERT BACKGROUND & INTEGRATED MARQUEE TICKER -->
+        <section id="hero" class="hero-section-wrap">
+            <!-- Canvas Animated Hero Background (250-Frame Image Animation) -->
+            <div class="hero-bg-slideshow" aria-hidden="true">
+                <canvas id="heroFrameCanvas" class="hero-frame-canvas" data-base-url="./aarpoo-irroo-theme/assets/images/hero/" data-total-frames="250"></canvas>
+                <div class="hero-bg-overlay"></div>
+            </div>
+
+            <div class="container">
+                <div class="hero-wrapper">
+                    <!-- Left Hero Details -->
+                    <div class="hero-left-content fade-in-up">
+                        <div class="hero-pills-row">
+                            <span class="pill-badge">● Early Bird Live</span>
+                            <span class="pill-tag">Thane</span>
+                        </div>
+
+                        <h1 class="hero-main-title apple-shimmer-text">
+                            Aarpoo Vol. <em class="gold-italic apple-gold-shimmer">02</em>
+                        </h1>
+
+                        <p class="hero-description apple-text-reveal">
+                            A full-throttle Malayali night — comedy, flute, live vocals and DJ.
+                        </p>
+
+                        <div class="hero-info-grid">
+                            <div class="info-column">
+                                <h6>Date</h6>
+                                <p>9 August 2026</p>
+                                <small>Sunday</small>
+                            </div>
+                            <div class="info-column">
+                                <h6>Time</h6>
+                                <p>7:30 PM onwards</p>
+                            </div>
+                            <div class="info-column">
+                                <h6>Venue</h6>
+                                <p>De Aura — Global Dining & Bar</p>
+                                <small>Majiwada, Thane</small>
+                            </div>
+                        </div>
+
+                        <div class="hero-cta-group">
+                            <a href="#booking-section" class="btn-gold">
+                                Book your seat →
+                            </a>
+                            <a href="#events-section" class="btn-outline">
+                                All events
+                            </a>
+                        </div>
+
+                        <div class="hero-lineup-ticker">
+                            LINEUP · VISHNU PAI · JAMES THAKARA · ABHIRAM RJ · FLUTE LIVE · DJ AARPOO
+                        </div>
+                    </div>
+
+                    <!-- Right Glassmorphism Floating Poster Card -->
+                    <div class="hero-poster-card hover-lift fade-in-up">
+                        <div>
+                            <div class="poster-header-tag">AARPOO IRROO PRESENTS</div>
+                            <h2 class="poster-title">Aarpoo Vol. 02</h2>
+                            <p class="poster-subtitle">
+                                A full-throttle Malayali night — comedy, flute, live vocals and DJ.
+                            </p>
+
+                            <div class="poster-artist-list">
+                                <div class="poster-artist-item">
+                                    <strong>Vishnu Pai</strong> <span>· Standup Comedy</span>
+                                </div>
+                                <div class="poster-artist-item">
+                                    <strong>James Thakara</strong> <span>· Standup Comedy</span>
+                                </div>
+                                <div class="poster-artist-item">
+                                    <strong>Abhiram RJ</strong> <span>· Live Vocals</span>
+                                </div>
+                                <div class="poster-artist-item">
+                                    <strong>Flute Live</strong> <span>· Instrumental Set</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="poster-footer">
+                            <div>
+                                09·08·26<br>
+                                <small style="font-weight:400; color:var(--text-muted);">SUNDAY · 7:30</small>
+                            </div>
+                            <div style="text-align:right;">
+                                De Aura<br>
+                                <small style="font-weight:400; color:var(--text-muted);">MAJIWADA, THANE</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integrated Continuous Horizontal Marquee Banner inside Hero Section -->
+            <div class="hero-marquee-banner" aria-label="Announcement Ticker">
+                <div class="marquee-track">
+                    <div class="marquee-item">
+                        <span>AARPOO IRROO</span>
+                        <span class="marquee-bullet">•</span>
+                        <span>Closer to Home</span>
+                        <span class="marquee-bullet">•</span>
+                        <span class="marquee-highlight">Book Tickets →</span>
+                        <span class="marquee-bullet">•</span>
+                        <span>Early Bird Live @ ₹599</span>
+                        <span class="marquee-bullet">•</span>
+                        <span>Sunday, 9 August 2026</span>
+                        <span class="marquee-bullet">•</span>
+                        <span>De Aura, Thane</span>
+                        <span class="marquee-bullet">•</span>
+                    </div>
+                    <div class="marquee-item">
+                        <span>AARPOO IRROO</span>
+                        <span class="marquee-bullet">•</span>
+                        <span>Closer to Home</span>
+                        <span class="marquee-bullet">•</span>
+                        <span class="marquee-highlight">Book Tickets →</span>
+                        <span class="marquee-bullet">•</span>
+                        <span>Early Bird Live @ ₹599</span>
+                        <span class="marquee-bullet">•</span>
+                        <span>Sunday, 9 August 2026</span>
+                        <span class="marquee-bullet">•</span>
+                        <span>De Aura, Thane</span>
+                        <span class="marquee-bullet">•</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT & 2X2 METRICS GRID -->
+        <section id="about-section" class="about-section">
+            <div class="container">
+                <div class="about-grid-wrapper">
+                    <!-- Left Content -->
+                    <div class="fade-in-up">
+                        <span class="section-kicker">About Aarpoo Irroo</span>
+                        <h2 class="about-headline">
+                            Every Malayali has <em class="gold-italic apple-gold-shimmer">two homes.</em>
+                        </h2>
+                        <p class="about-body-text apple-text-reveal">
+                            One is where they live. The other is Kerala. Aarpoo Irroo is the bridge — live cultural nights that translate distant heritage into active weekend plans.
+                        </p>
+
+                        <div class="about-actions">
+                            <a href="#about-section" class="btn-outline" style="color:var(--text-dark); border-color:var(--border-warm);">
+                                Read our story →
+                            </a>
+                            <a href="#partner-section" class="btn-gold">
+                                Partner with us
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right 2x2 Metrics Cards Grid -->
+                    <div class="metrics-2x2-grid fade-in-up">
+                        <div class="metric-box">
+                            <div class="metric-number-pill">695K+</div>
+                            <span class="metric-caption">Digital campaign views</span>
+                        </div>
+
+                        <div class="metric-box">
+                            <div class="metric-number-pill">300+</div>
+                            <span class="metric-caption">Avg. tickets per event</span>
+                        </div>
+
+                        <div class="metric-box">
+                            <div class="metric-number-pill">400%+</div>
+                            <span class="metric-caption">Follower growth in campaigns</span>
+                        </div>
+
+                        <div class="metric-box">
+                            <div class="metric-number-pill">Sold Out</div>
+                            <span class="metric-caption">Inaugural festival capacity</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EVENTS ARCHIVE SECTION -->
+        <section id="events-section" class="section-padding" style="background:var(--bg-warm-alt);">
+            <div class="container">
+                <div class="section-header-centered fade-in-up">
+                    <span class="section-kicker">City Chapters</span>
+                    <h2 class="section-title-large">Events &amp; <em class="gold-italic">Archives</em></h2>
+                </div>
+
+                <div class="acts-4-grid">
+                    <div class="act-card-box fade-in-up">
+                        <span style="font-size:0.75rem; font-weight:800; color:var(--primary-gold); text-transform:uppercase; margin-bottom:0.5rem; display:block;">CURRENT EDITION</span>
+                        <h3 class="act-heading">Aarpoo Vol. 02 — Thane</h3>
+                        <p class="act-body" style="margin-bottom:1rem;">
+                            Sunday, 9 August 2026 • 7:30 PM Onwards at De Aura — Global Dining & Bar.
+                        </p>
+                        <a href="#booking-section" style="font-weight:700; color:var(--primary-gold);">Book Seats ₹599 →</a>
+                    </div>
+
+                    <div class="act-card-box fade-in-up">
+                        <span style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem; display:block;">SOLD OUT</span>
+                        <h3 class="act-heading">Aarpoo Vol. 01 — Thane Debut</h3>
+                        <p class="act-body" style="margin-bottom:1rem;">
+                            Over 320 tickets sold out. Inaugural standup comedy set, unplugged music, and chai-adda vibe.
+                        </p>
+                        <small style="color:var(--text-dim);">June 2025 • Thane West</small>
+                    </div>
+
+                    <div class="act-card-box fade-in-up">
+                        <span style="font-size:0.75rem; font-weight:800; color:var(--primary-gold); text-transform:uppercase; margin-bottom:0.5rem; display:block;">ROADMAP</span>
+                        <h3 class="act-heading">Bangalore Chapter</h3>
+                        <p class="act-body" style="margin-bottom:1rem;">
+                            Expanding our cultural bridge to the Malayali diaspora in Bangalore.
+                        </p>
+                        <small style="color:var(--text-dim);">Late 2026 Launch</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4-ACT EXPERIENCE GRID -->
+        <section class="section-padding">
+            <div class="container">
+                <div class="section-header-centered fade-in-up">
+                    <span class="section-kicker">The Evening</span>
+                    <h2 class="section-title-large">Four acts. <em class="gold-italic">One roaring night.</em></h2>
+                </div>
+
+                <div class="acts-4-grid">
+                    <div class="act-card-box fade-in-up">
+                        <div>
+                            <div class="act-number-tag">Act 01</div>
+                            <div class="act-malayalam-script">ചിരി</div>
+                            <h3 class="act-heading">Standup Comedy</h3>
+                            <p class="act-body">
+                                Back-to-back homegrown sets by Vishnu Pai and James Thakara bringing relatable Mumbai-Malayali banter.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="act-card-box fade-in-up">
+                        <div>
+                            <div class="act-number-tag">Act 02</div>
+                            <div class="act-malayalam-script">സംഗീതം</div>
+                            <h3 class="act-heading">Live Concert</h3>
+                            <p class="act-body">
+                                Flute live instrumental performance paired with Abhiram RJ on lead vocals.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="act-card-box fade-in-up">
+                        <div>
+                            <div class="act-number-tag">Act 03</div>
+                            <div class="act-malayalam-script">പാർട്ടി</div>
+                            <h3 class="act-heading">DJ Afterparty</h3>
+                            <p class="act-body">
+                                Malayali-forward DJ set stitched with Bollywood bangers and South Indian dance anthems.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="act-card-box fade-in-up">
+                        <div>
+                            <div class="act-number-tag">Act 04</div>
+                            <div class="act-malayalam-script">വൈബ്</div>
+                            <h3 class="act-heading">Community Vibe</h3>
+                            <p class="act-body">
+                                Chai-adda energy, easy conversations, and authentic Kerala-inspired F&B counters.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCHEDULE & GUIDELINES -->
+        <section class="schedule-section">
+            <div class="container">
+                <div class="section-header-centered fade-in-up">
+                    <span class="section-kicker">Rundown</span>
+                    <h2 class="section-title-large">Interactive Schedule</h2>
+                </div>
+
+                <div class="timeline-flow">
+                    <div class="timeline-row fade-in-up">
+                        <div class="timeline-time-badge">7:30 PM</div>
+                        <div class="timeline-card-content">
+                            <h4>Doors Open & Community Check-in</h4>
+                            <p>Settle in, meet the room, and enjoy Kerala-inspired appetizers at De Aura.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-row fade-in-up">
+                        <div class="timeline-time-badge">8:15 PM</div>
+                        <div class="timeline-card-content">
+                            <h4>Standup Comedy — Vishnu Pai</h4>
+                            <p>Opening comedy act bringing hilarious diaspora stories.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-row fade-in-up">
+                        <div class="timeline-time-badge">9:00 PM</div>
+                        <div class="timeline-card-content">
+                            <h4>Standup Comedy — James Thakara</h4>
+                            <p>High-tempo Malayalam standup set packed with sharp punchlines.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-row fade-in-up">
+                        <div class="timeline-time-badge">9:45 PM</div>
+                        <div class="timeline-card-content">
+                            <h4>Live Concert — Flute Live + Abhiram RJ</h4>
+                            <p>Fusion indie music concert blending live flute with soulful vocals.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-row fade-in-up">
+                        <div class="timeline-time-badge">10:45 PM</div>
+                        <div class="timeline-card-content">
+                            <h4>DJ Afterparty — DJ Aarpoo</h4>
+                            <p>Malayalam dance tracks and Bollywood fillers to wrap up the festival.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEAT BOOKING MODULE -->
+        <section id="booking-section" class="booking-section-container">
+            <div class="container">
+                <div class="booking-warm-card fade-in-up">
+                    <h2 class="booking-card-title">Book Your Seat</h2>
+                    <p style="text-align:center; color:var(--text-muted); margin-bottom:1.5rem;">
+                        Aarpoo Vol. 02 • Early Bird ₹599 / seat (GST Included)
+                    </p>
+
+                    <div style="text-align:center;">
+                        <span style="font-weight:700; font-size:0.9rem; color:var(--text-muted); text-transform:uppercase;">Select Seats (1–6):</span>
+                        <div class="seat-btn-picker">
+                            <button type="button" class="seat-btn seat-num-btn active" data-seats="1">1</button>
+                            <button type="button" class="seat-btn seat-num-btn" data-seats="2">2</button>
+                            <button type="button" class="seat-btn seat-num-btn" data-seats="3">3</button>
+                            <button type="button" class="seat-btn seat-num-btn" data-seats="4">4</button>
+                            <button type="button" class="seat-btn seat-num-btn" data-seats="5">5</button>
+                            <button type="button" class="seat-btn seat-num-btn" data-seats="6">6</button>
+                        </div>
+
+                        <div id="group-notice" class="group-notice" style="margin-bottom:1.5rem;">
+                            💡 Planning for &gt;6 seats? Contact our team at <a href="mailto:aarpooirroo@gmail.com" style="color:var(--primary-gold); text-decoration:underline;">aarpooirroo@gmail.com</a> for group bookings!
+                        </div>
+                    </div>
+
+                    <div class="price-summary-card">
+                        <div class="price-row">
+                            <span>Price per seat</span>
+                            <span>₹599</span>
+                        </div>
+                        <div class="price-row total-bold">
+                            <span>Total Payable</span>
+                            <span id="total-val" style="color:var(--primary-gold);">₹599</span>
+                        </div>
+                    </div>
+
+                    <form id="aarpoo-booking-form">
+                        <input type="hidden" id="selected-seats-input" name="seats" value="1">
+
+                        <div class="form-field-group">
+                            <label for="customer-name">Full Name *</label>
+                            <input type="text" id="customer-name" class="form-input-warm" placeholder="Rahul Nair" required>
+                        </div>
+
+                        <div class="form-field-group">
+                            <label for="customer-email">Email Address *</label>
+                            <input type="email" id="customer-email" class="form-input-warm" placeholder="rahul@example.com" required>
+                        </div>
+
+                        <div class="form-field-group" style="margin-bottom:1.5rem;">
+                            <label for="customer-phone">WhatsApp Number *</label>
+                            <input type="tel" id="customer-phone" class="form-input-warm" placeholder="+91 98765 43210" required>
+                        </div>
+
+                        <!-- Razorpay Branded Payment Button -->
+                        <button type="submit" id="btn-razorpay-checkout" class="btn-razorpay-pay">
+                            <span class="rzp-logo-badge">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M13.4 2L4 14.5H11L9.6 22L20 9.5H13L13.4 2Z" fill="#3395FF"/>
+                                </svg>
+                            </span>
+                            <span>Pay &amp; Confirm Seats via Razorpay →</span>
+                        </button>
+                    </form>
+
+                    <!-- Razorpay Trust Shield & Payment Method Badges -->
+                    <div class="razorpay-trust-shield">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3395FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span>256-bit Encrypted Payments • Secured by <strong>Razorpay</strong></span>
+                    </div>
+
+                    <div class="razorpay-method-badges">
+                        <span class="payment-pill">⚡ UPI (GPay / PhonePe / Paytm)</span>
+                        <span class="payment-pill">💳 Credit &amp; Debit Cards</span>
+                        <span class="payment-pill">🏛️ NetBanking</span>
+                        <span class="payment-pill">👛 Wallets &amp; CRED</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PARTNER & CONTACT US SECTION -->
+        <section id="partner-section" class="section-padding" style="background:var(--bg-warm-alt);">
+            <div class="container">
+                <div class="section-header-centered fade-in-up">
+                    <span class="section-kicker">Collaborations &amp; Connect</span>
+                    <h2 class="section-title-large">Partner <em class="gold-italic">&amp; Contact Us</em></h2>
+                </div>
+
+                <div class="partner-contact-wrapper">
+                    <!-- Partner Box -->
+                    <div class="partner-box-card fade-in-up">
+                        <span class="section-kicker">Brands &amp; Venues</span>
+                        <h3 style="font-family:var(--font-serif); font-size:2rem; font-weight:400; margin-bottom:0.5rem;">
+                            Partner Inquiry
+                        </h3>
+                        <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">
+                            Reach 695K+ digital campaign views and connect with Malayalis in MMR.
+                        </p>
+
+                        <form id="aarpoo-partner-form">
+                            <div class="form-field-group">
+                                <label for="partner-brand">Brand / Company Name *</label>
+                                <input type="text" id="partner-brand" class="form-input-warm" placeholder="Brand Name" required>
+                            </div>
+
+                            <div class="form-field-group">
+                                <label for="partner-name">Contact Person *</label>
+                                <input type="text" id="partner-name" class="form-input-warm" placeholder="Anjali Menon" required>
+                            </div>
+
+                            <div class="form-field-group">
+                                <label for="partner-email">Business Email *</label>
+                                <input type="email" id="partner-email" class="form-input-warm" placeholder="partner@brand.com" required>
+                            </div>
+
+                            <div class="form-field-group">
+                                <label for="partner-phone">Contact Phone *</label>
+                                <input type="tel" id="partner-phone" class="form-input-warm" placeholder="+91 98765 43210" required>
+                            </div>
+
+                            <div class="form-field-group">
+                                <label for="partner-type">Partnership Type *</label>
+                                <select id="partner-type" class="form-input-warm" required>
+                                    <option value="Sponsorship">Event Sponsor (Title / Stage)</option>
+                                    <option value="Venue Partner">Venue Host (Dining &amp; Bar)</option>
+                                    <option value="F&B Partner">Kerala F&amp;B Stall</option>
+                                    <option value="Media Partner">Media &amp; PR</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field-group" style="margin-bottom:1.5rem;">
+                                <label for="partner-message">Proposal Details</label>
+                                <textarea id="partner-message" class="form-input-warm" rows="3" placeholder="Tell us about your brand proposal..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-gold" style="width:100%;">
+                                Submit Partner Proposal →
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Contact Us Box -->
+                    <div class="partner-box-card fade-in-up" style="background:var(--bg-card-elevated);">
+                        <span class="section-kicker">Get In Touch</span>
+                        <h3 style="font-family:var(--font-serif); font-size:2rem; font-weight:400; margin-bottom:0.5rem;">
+                            Contact Us
+                        </h3>
+                        <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">
+                            Questions about tickets, seating, or group bookings? Message us directly.
+                        </p>
+
+                        <div class="contact-info-list">
+                            <div class="contact-info-item">
+                                <div class="contact-icon">📧</div>
+                                <div>
+                                    <h5 style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">Email Us</h5>
+                                    <a href="mailto:aarpooirroo@gmail.com" style="font-weight:700; color:var(--primary-gold);">aarpooirroo@gmail.com</a>
+                                </div>
+                            </div>
+
+                            <div class="contact-info-item">
+                                <div class="contact-icon">💬</div>
+                                <div>
+                                    <h5 style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">WhatsApp Adda</h5>
+                                    <a href="https://whatsapp.com" target="_blank" rel="noopener" style="font-weight:700; color:var(--text-dark);">Join Thane Malayali WhatsApp Group</a>
+                                </div>
+                            </div>
+
+                            <div class="contact-info-item">
+                                <div class="contact-icon">📍</div>
+                                <div>
+                                    <h5 style="font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">Flagship Venue</h5>
+                                    <p style="font-weight:700; color:var(--text-dark);">De Aura — Global Dining &amp; Bar, Majiwada, Thane</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="aarpoo-contact-form" style="margin-top:2rem;">
+                            <div class="form-field-group">
+                                <label for="contact-name">Your Name *</label>
+                                <input type="text" id="contact-name" class="form-input-warm" placeholder="Your Name" required>
+                            </div>
+                            <div class="form-field-group">
+                                <label for="contact-email">Your Email *</label>
+                                <input type="email" id="contact-email" class="form-input-warm" placeholder="yourname@gmail.com" required>
+                            </div>
+                            <div class="form-field-group" style="margin-bottom:1.5rem;">
+                                <label for="contact-message">Message / Question *</label>
+                                <textarea id="contact-message" class="form-input-warm" rows="3" placeholder="How can we help you?" required></textarea>
+                            </div>
+                            <button type="submit" class="btn-outline" style="width:100%; color:var(--text-dark); border-color:var(--border-warm);">
+                                Send Message →
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-columns-grid">
+                <div>
+                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+                        <img src="./aarpoo-irroo-theme/assets/images/aarpoo-logo.jpg" alt="Aarpoo Logo" style="height:44px; width:44px; border-radius:50%; border:1px solid var(--primary-gold);">
+                        <div>
+                            <h4 class="footer-brand-title" style="margin-bottom:0; font-size:1.4rem;">AARPOO IRROO</h4>
+                            <span style="font-size:0.65rem; letter-spacing:0.1em; color:var(--primary-gold); font-weight:700;">MUSIC • ENERGY • EXPERIENCE</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.92rem; color:#C2B8AF; line-height:1.6; margin-bottom:1.25rem;">
+                        Connecting the Malayali diaspora in Thane &amp; Mumbai. The cultural bridge bringing Malayalam standup comedy, live indie music, DJ afterparties, and authentic chai-adda community vibes closer to home.
+                    </p>
+                    <p style="font-size:0.85rem; color:#A0948C;">
+                        📩 Direct Inquiries: <a href="mailto:aarpooirroo@gmail.com" style="color:var(--primary-gold);">aarpooirroo@gmail.com</a>
+                    </p>
+                </div>
+
+                <div>
+                    <h5 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#FAF6F0; margin-bottom:1rem;">Navigation</h5>
+                    <ul class="footer-links-group">
+                        <li><a href="#hero" style="color:#C2B8AF;">Home</a></li>
+                        <li><a href="#events-section" style="color:#C2B8AF;">Events</a></li>
+                        <li><a href="#about-section" style="color:#C2B8AF;">About</a></li>
+                        <li><a href="#partner-section" style="color:#C2B8AF;">Partner &amp; Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h5 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#FAF6F0; margin-bottom:1rem;">Community</h5>
+                    <ul class="footer-links-group">
+                        <li><a href="https://instagram.com" target="_blank" rel="noopener" style="color:#C2B8AF;">Instagram (@aarpooirroo)</a></li>
+                        <li><a href="https://whatsapp.com" target="_blank" rel="noopener" style="color:#C2B8AF;">Thane Malayali WhatsApp Adda</a></li>
+                        <li><a href="https://youtube.com" target="_blank" rel="noopener" style="color:#C2B8AF;">YouTube Highlights</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom-bar">
+                <div>
+                    © 2026 Aarpoo Irroo Cultural Brand. Built for the Thane &amp; Mumbai Diaspora.
+                </div>
+                <div style="font-family: var(--font-malayalam); color: var(--primary-gold); font-size: 0.95rem;">
+                    നമ്മുടെ ചിരി, നമ്മുടെ സംഗീതം, നമ്മുടെ പാർട്ടി ❤️
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Booking Engine Script -->
+    <script src="./aarpoo-irroo-theme/assets/js/booking.js"></script>
+</body>
+</html>
