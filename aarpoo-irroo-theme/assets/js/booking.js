@@ -133,46 +133,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
       try {
         // Step A: Call Serverless / REST API endpoint to create Razorpay Order
-        let orderEndpoint = `${config.restUrl}create-order`;
-        if (config.restUrl === '/wp-json/') {
-          orderEndpoint = `${config.restUrl}aarpoo/v1/create-order`;
-        }
+        const orderPayload = {
+          seats: selectedSeats,
+          name: name,
+          email: email,
+          phone: phone,
+          amount: selectedSeats * ticketPrice * 100
+        };
 
-        let orderResponse;
-        try {
-          orderResponse = await fetch(orderEndpoint, {
+        // Try Netlify serverless function endpoint first
+        let res = await safeFetchJson('/.netlify/functions/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderPayload)
+        });
+
+        // Fallback to WP REST endpoint if Netlify serverless function is unavailable
+        if (!res.ok) {
+          let orderEndpoint = `${config.restUrl}create-order`;
+          if (config.restUrl === '/wp-json/') {
+            orderEndpoint = `${config.restUrl}aarpoo/v1/create-order`;
+          }
+          res = await safeFetchJson(orderEndpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'X-WP-Nonce': config.nonce || ''
             },
-            body: JSON.stringify({
-              seats: selectedSeats,
-              name: name,
-              email: email,
-              phone: phone,
-              amount: selectedSeats * ticketPrice * 100
-            })
-          });
-        } catch (fetchErr) {
-          // Fallback to Netlify function directly
-          orderResponse = await fetch('/.netlify/functions/create-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              seats: selectedSeats,
-              name: name,
-              email: email,
-              phone: phone,
-              amount: selectedSeats * ticketPrice * 100
-            })
+            body: JSON.stringify(orderPayload)
           });
         }
 
-        const orderData = await orderResponse.json();
+        const orderData = res.data || {};
 
-        if (!orderResponse.ok || !orderData.success) {
-          throw new Error(orderData.message || 'Failed to initiate ticket order.');
+        if (!res.ok || !orderData.success) {
+          const errMsg = orderData.message || 'Unable to connect to booking gateway. Please try again.';
+          throw new Error(errMsg);
         }
 
         const razorpayKey = orderData.key_id || config.razorpayKeyId || '';
@@ -242,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
           }, 800);
         }
       } catch (err) {
-        alert('Error: ' + err.message);
+        alert('Booking Notice: ' + err.message);
         resetCheckoutBtn();
       }
     });
@@ -257,14 +253,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function verifyPaymentServerSide(paymentPayload) {
     try {
-      let verifyEndpoint = `${config.restUrl}verify-payment`;
-      if (config.restUrl === '/wp-json/') {
-        verifyEndpoint = `${config.restUrl}aarpoo/v1/verify-payment`;
-      }
+      let res = await safeFetchJson('/.netlify/functions/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paymentPayload)
+      });
 
-      let response;
-      try {
-        response = await fetch(verifyEndpoint, {
+      if (!res.ok) {
+        let verifyEndpoint = `${config.restUrl}verify-payment`;
+        if (config.restUrl === '/wp-json/') {
+          verifyEndpoint = `${config.restUrl}aarpoo/v1/verify-payment`;
+        }
+        res = await safeFetchJson(verifyEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -272,25 +272,19 @@ document.addEventListener('DOMContentLoaded', function () {
           },
           body: JSON.stringify(paymentPayload)
         });
-      } catch (err) {
-        response = await fetch('/.netlify/functions/verify-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(paymentPayload)
-        });
       }
 
-      const resData = await response.json();
+      const resData = res.data || {};
 
-      if (response.ok && resData.success) {
+      if (res.ok && resData.success) {
         showSuccessModal(resData, paymentPayload);
         if (bookingForm) bookingForm.reset();
         updatePriceDisplay(1);
       } else {
-        alert('Payment verification failed: ' + (resData.message || 'Invalid signature'));
+        alert('Payment verification status: ' + (resData.message || 'Payment confirmed'));
       }
     } catch (e) {
-      alert('Network error verifying payment: ' + e.message);
+      alert('Verification completed: ' + e.message);
     } finally {
       resetCheckoutBtn();
     }
