@@ -1,4 +1,4 @@
-const { saveContactMessage } = require('./utils/supabase');
+const { saveInquiry } = require('./utils/supabase');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -31,8 +31,14 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Attempt Supabase database persistence if configured
-    await saveContactMessage(payload);
+    // Save inquiry to unified `inquiries` table
+    await saveInquiry({
+      inquiry_type: 'contact',
+      name: payload.name,
+      email: payload.email,
+      phone: payload.phone || null,
+      message: payload.message
+    });
 
     return {
       statusCode: 200,

@@ -1,4 +1,4 @@
-const { savePartnerInquiry } = require('./utils/supabase');
+const { saveInquiry } = require('./utils/supabase');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -27,12 +27,20 @@ exports.handler = async (event, context) => {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ success: false, message: 'Name and email are required.' })
+        body: JSON.stringify({ success: false, message: 'Contact name and email are required.' })
       };
     }
 
-    // Attempt Supabase database persistence if configured
-    await savePartnerInquiry(payload);
+    // Save partner inquiry to unified `inquiries` table
+    await saveInquiry({
+      inquiry_type: 'partner',
+      name: payload.contact_person || payload.name,
+      email: payload.email,
+      phone: payload.phone || null,
+      brand_name: payload.brand_name || null,
+      partner_type: payload.partner_type || null,
+      message: payload.message || 'Partner proposal submission'
+    });
 
     return {
       statusCode: 200,
@@ -49,7 +57,7 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({
         success: false,
-        message: 'Failed to process partner inquiry. Please try again.'
+        message: 'Failed to submit proposal. Please try again.'
       })
     };
   }

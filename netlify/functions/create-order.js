@@ -1,5 +1,6 @@
 const Razorpay = require('razorpay');
 require('dotenv').config();
+const { getEventBySlug, checkCapacity, createPaymentTransaction } = require('./utils/supabase');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -34,38 +35,67 @@ exports.handler = async (event, context) => {
     }
 
     const payload = JSON.parse(event.body || '{}');
-    const seats = parseInt(payload.seats, 10) || 1;
-    const ticketPrice = parseInt(payload.ticketPrice, 10) || 599;
-    const amountInPaise = payload.amount ? parseInt(payload.amount, 10) : seats * ticketPrice * 100;
+    const seats = Math.max(1, parseInt(payload.seats, 10) || 1);
+    const eventSlug = payload.eventSlug || 'aarpoo-vol-02';
 
-    // Validate minimum amount >= 100 paise
-    if (isNaN(amountInPaise) || amountInPaise < 100) {
+    // 1. Fetch Event Pricing & Verification from Database (Never Trust Frontend Price)
+    const eventRecord = await getEventBySlug(eventSlug);
+    if (!eventRecord) {
       return {
-        statusCode: 400,
+        statusCode: 404,
         headers,
-        body: JSON.stringify({ success: false, message: 'Amount must be at least 100 paise (₹1).' })
+        body: JSON.stringify({ success: false, message: 'Event not found or inactive.' })
       };
     }
 
+    // 2. Capacity Check
+    const capacityCheck = await checkCapacity(eventRecord.event_id, seats);
+    if (!capacityCheck.available) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          success: false,
+          message: `Sold out! Only ${capacityCheck.remaining || 0} seats remaining.`
+        })
+      };
+    }
+
+    // Calculate official price in paise strictly on the backend
+    const pricePerSeatInPaise = eventRecord.price_in_paise || 59900; // ₹599.00
+    const totalAmountInPaise = seats * pricePerSeatInPaise;
+
+    // 3. Initialize Razorpay Client & Create Order
     const instance = new Razorpay({
       key_id: key_id,
       key_secret: key_secret
     });
 
+    const receiptId = 'rcpt_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
     const options = {
-      amount: amountInPaise,
-      currency: payload.currency || 'INR',
-      receipt: 'rcpt_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      amount: totalAmountInPaise,
+      currency: 'INR',
+      receipt: receiptId,
       notes: {
         customer_name: payload.name || '',
         customer_email: payload.email || '',
         customer_phone: payload.phone || '',
         seats_reserved: seats,
-        event: 'Aarpoo Vol. 02 Thane'
+        event_id: eventRecord.event_id,
+        event_title: eventRecord.title
       }
     };
 
     const order = await instance.orders.create(options);
+
+    // 4. Log initial transaction record into `payment_transactions`
+    await createPaymentTransaction({
+      order_id: order.id,
+      amount: totalAmountInPaise,
+      currency: 'INR',
+      event_id: eventRecord.event_id,
+      customer_email: payload.email
+    });
 
     return {
       statusCode: 200,
@@ -75,7 +105,8 @@ exports.handler = async (event, context) => {
         order_id: order.id,
         amount: order.amount,
         currency: order.currency,
-        key_id: key_id
+        key_id: key_id,
+        event_title: eventRecord.title
       })
     };
   } catch (error) {

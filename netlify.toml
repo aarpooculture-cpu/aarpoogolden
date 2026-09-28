@@ -2,6 +2,10 @@
   functions = "netlify/functions"
   publish = "."
 
+[functions]
+  node_bundler = "esbuild"
+
+# Clean Serverless API Function Routing
 [[redirects]]
   from = "/api/create-order"
   to = "/.netlify/functions/create-order"
@@ -13,6 +17,32 @@
   status = 200
 
 [[redirects]]
+  from = "/api/razorpay-webhook"
+  to = "/.netlify/functions/razorpay-webhook"
+  status = 200
+
+[[redirects]]
+  from = "/api/submit-contact"
+  to = "/.netlify/functions/submit-contact"
+  status = 200
+
+[[redirects]]
+  from = "/api/submit-partner"
+  to = "/.netlify/functions/submit-partner"
+  status = 200
+
+[[redirects]]
+  from = "/api/get-data"
+  to = "/.netlify/functions/get-data"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Legacy WP-REST non-breaking redirects
+[[redirects]]
   from = "/wp-json/aarpoo/v1/create-order"
   to = "/.netlify/functions/create-order"
   status = 200
@@ -20,4 +50,45 @@
 [[redirects]]
   from = "/wp-json/aarpoo/v1/verify-payment"
   to = "/.netlify/functions/verify-payment"
+  status = 200
+
+[[redirects]]
+  from = "/wp-json/aarpoo/v1/submit-contact"
+  to = "/.netlify/functions/submit-contact"
+  status = 200
+
+[[redirects]]
+  from = "/wp-json/aarpoo/v1/submit-partner"
+  to = "/.netlify/functions/submit-partner"
+  status = 200
+
+# Frontend Page Routing
+[[redirects]]
+  from = "/about"
+  to = "/about.html"
+  status = 200
+
+[[redirects]]
+  from = "/events"
+  to = "/events.html"
+  status = 200
+
+[[redirects]]
+  from = "/events/*"
+  to = "/events.html"
+  status = 200
+
+[[redirects]]
+  from = "/partner"
+  to = "/partner.html"
+  status = 200
+
+[[redirects]]
+  from = "/policies"
+  to = "/policies.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/policies.html"
   status = 200

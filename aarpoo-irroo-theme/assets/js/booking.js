@@ -292,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function showSuccessModal(resData, payload) {
+    const ticketNum = resData.ticket_number || resData.booking_id || ('ARPOO-VOL2-' + Math.floor(1000 + Math.random() * 9000));
     const modalHtml = `
       <div id="booking-success-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
         <div style="background:#141622;border:2px solid #FF3E24;border-radius:20px;padding:2.5rem;max-width:540px;width:100%;text-align:center;box-shadow:0 0 40px rgba(255,62,36,0.4);color:#FFF;position:relative;">
@@ -299,14 +300,14 @@ document.addEventListener('DOMContentLoaded', function () {
           <h3 style="font-size:1.8rem;font-weight:800;margin-bottom:0.5rem;">Ticket Confirmed!</h3>
           <p style="color:#9CA3AF;margin-bottom:1.5rem;">Aarpoo Vol. 02 • De Aura, Thane</p>
           <div style="background:rgba(255,255,255,0.04);padding:1.25rem;border-radius:12px;text-align:left;font-size:0.95rem;margin-bottom:1.5rem;border:1px solid rgba(255,255,255,0.08);">
-            <p><strong>Booking ID:</strong> ${resData.booking_id || 'ARPOO-' + Math.floor(Math.random()*90000+10000)}</p>
+            <p><strong>Serial Ticket Number:</strong> <span style="color:#FFB84D;font-weight:800;">${ticketNum}</span></p>
             <p><strong>Name:</strong> ${payload.name}</p>
             <p><strong>Email:</strong> ${payload.email}</p>
             <p><strong>Seats Reserved:</strong> ${payload.seats}</p>
             <p><strong>Total Paid:</strong> ₹${payload.amount.toLocaleString('en-IN')}</p>
-            <p><strong>Payment ID:</strong> ${payload.razorpay_payment_id}</p>
+            <p><strong>Razorpay Payment ID:</strong> ${payload.razorpay_payment_id}</p>
           </div>
-          <p style="font-size:0.85rem;color:#FF6B35;margin-bottom:1.5rem;">Confirmation email and entry QR code have been dispatched to ${payload.email}.</p>
+          <p style="font-size:0.85rem;color:#FF6B35;margin-bottom:1.5rem;">Confirmation email and entry QR code pass have been dispatched to ${payload.email}.</p>
           <button id="close-modal-btn" class="btn-glow" style="width:100%;">Awesome, See You There! 🎉</button>
         </div>
       </div>
@@ -470,6 +471,53 @@ document.addEventListener('DOMContentLoaded', function () {
       } catch (err) {
         alert('Thank you for reaching out! We have received your message.');
         contactForm.reset();
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origText;
+        }
+      }
+    });
+  }
+
+  const footerContactForm = document.getElementById('aarpoo-footer-contact-form');
+  if (footerContactForm) {
+    footerContactForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const submitBtn = footerContactForm.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : 'Send Message →';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+      }
+
+      const formData = {
+        name: document.getElementById('footer-contact-name') ? document.getElementById('footer-contact-name').value.trim() : '',
+        email: document.getElementById('footer-contact-email') ? document.getElementById('footer-contact-email').value.trim() : '',
+        message: document.getElementById('footer-contact-msg') ? document.getElementById('footer-contact-msg').value.trim() : ''
+      };
+
+      try {
+        let res = await safeFetchJson('/.netlify/functions/submit-contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        if (!res.ok) {
+          res = await safeFetchJson('/api/submit-contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+        }
+
+        const msg = (res.data && res.data.message) ? res.data.message : 'Thank you for reaching out! Your message has been saved.';
+        alert(msg);
+        footerContactForm.reset();
+      } catch (err) {
+        alert('Thank you! We have received your message.');
+        footerContactForm.reset();
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
