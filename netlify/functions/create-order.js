@@ -1,6 +1,6 @@
 const Razorpay = require('razorpay');
 require('dotenv').config();
-const { getEventBySlug, checkCapacity, createPaymentTransaction } = require('./utils/supabase');
+const { getEventBySlug, checkCapacity, createPaymentTransaction, updateTransactionOrderId } = require('./utils/supabase');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -111,7 +111,6 @@ exports.handler = async (event, context) => {
 
     // 5. Update the transaction with the real Razorpay Order ID
     if (dbTx.transaction_id) {
-      const { updateTransactionOrderId } = require('./utils/supabase');
       await updateTransactionOrderId(dbTx.transaction_id, order.id);
     }
 
