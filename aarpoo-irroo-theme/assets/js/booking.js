@@ -179,8 +179,8 @@ document.addEventListener('DOMContentLoaded', function () {
           amount: selectedSeats * activeTicketPrice * 100
         };
 
-        // Try Netlify serverless function endpoint first
-        let res = await safeFetchJson('/.netlify/functions/create-order', {
+        // Try Vercel / Netlify serverless function endpoint first
+        let res = await safeFetchJson('/api/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(orderPayload)
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function verifyPaymentServerSide(paymentPayload) {
     try {
-      let res = await safeFetchJson('/.netlify/functions/verify-payment', {
+      let res = await safeFetchJson('/api/verify-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(paymentPayload)
@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         if (!res.ok) {
-          res = await safeFetchJson('/.netlify/functions/submit-partner', {
+          res = await safeFetchJson('/api/submit-partner', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         if (!res.ok) {
-          res = await safeFetchJson('/.netlify/functions/submit-contact', {
+          res = await safeFetchJson('/api/submit-contact', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
       };
 
       try {
-        let res = await safeFetchJson('/.netlify/functions/submit-contact', {
+        let res = await safeFetchJson('/api/submit-contact', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
