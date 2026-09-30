@@ -18,9 +18,9 @@ CREATE TABLE IF NOT EXISTS public.events (
     date TIMESTAMP WITH TIME ZONE NOT NULL,
     venue VARCHAR(255) NOT NULL,
     location VARCHAR(255) NOT NULL,
-    price_in_paise INT NOT NULL DEFAULT 59900, -- ₹599.00
-    total_capacity INT NOT NULL DEFAULT 350,
-    available_capacity INT NOT NULL DEFAULT 350,
+    price_in_paise INT NOT NULL DEFAULT 39900, -- ₹399.00 Base
+    total_capacity INT NOT NULL DEFAULT 455,
+    available_capacity INT NOT NULL DEFAULT 455,
     status VARCHAR(50) DEFAULT 'active',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS public.events (
 -- 2. Tickets Table (PK: ticket_id, Serial: ticket_number, Invoicing & Email Hooks)
 CREATE TABLE IF NOT EXISTS public.tickets (
     ticket_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    ticket_number VARCHAR(50) NOT NULL UNIQUE, -- Human-readable serial (e.g. ARPOO-VOL2-1001)
+    ticket_number VARCHAR(50) NOT NULL UNIQUE, -- Human-readable serial (e.g. ARPOO-VOL3-1001)
     event_id UUID REFERENCES public.events(event_id) ON DELETE CASCADE,
     customer_name VARCHAR(255) NOT NULL,
     customer_email VARCHAR(255) NOT NULL,
@@ -73,21 +73,25 @@ CREATE TABLE IF NOT EXISTS public.inquiries (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Seed Flagship Event (Aarpoo Vol. 02 Thane)
+-- Seed Flagship Event (AARPOO Vol. 03 — Bombay Cocktail Bar)
 INSERT INTO public.events (slug, title, description, date, venue, location, price_in_paise, total_capacity, available_capacity, status)
 VALUES (
-    'aarpoo-vol-02',
-    'Aarpoo Vol. 02 — Thane',
-    'A full-throttle Malayali night — standup comedy, live flute, vocals, and DJ afterparty.',
-    '2026-08-09 19:30:00+05:30',
-    'De Aura — Global Dining & Bar',
-    'Majiwada, Thane West, Mumbai',
-    59900,
-    350,
-    350,
+    'aarpoo-vol-03',
+    'AARPOO Vol. 03 — Bombay Cocktail Bar',
+    'The Ultimate Festival for Malayalees in and Around Mumbai featuring Live Performance, Musical Sing Along, Malayali DJ, and Mentalism Show.',
+    '2026-11-07 15:30:00+05:30',
+    'Bombay Cocktail Bar',
+    'Andheri West, Mumbai',
+    39900,
+    455,
+    455,
     'active'
 )
 ON CONFLICT (slug) DO UPDATE SET
+    title = EXCLUDED.title,
+    date = EXCLUDED.date,
+    venue = EXCLUDED.venue,
+    location = EXCLUDED.location,
     price_in_paise = EXCLUDED.price_in_paise,
     total_capacity = EXCLUDED.total_capacity;
 

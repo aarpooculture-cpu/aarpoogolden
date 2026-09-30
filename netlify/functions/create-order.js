@@ -36,9 +36,9 @@ exports.handler = async (event, context) => {
 
     const payload = JSON.parse(event.body || '{}');
     const seats = Math.max(1, parseInt(payload.seats, 10) || 1);
-    const eventSlug = payload.eventSlug || 'aarpoo-vol-02';
+    const eventSlug = payload.eventSlug || 'aarpoo-vol-03';
 
-    // 1. Fetch Event Pricing & Verification from Database (Never Trust Frontend Price)
+    // 1. Fetch Event Details from Database
     const eventRecord = await getEventBySlug(eventSlug);
     if (!eventRecord) {
       return {
@@ -61,8 +61,11 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Calculate official price in paise strictly on the backend
-    const pricePerSeatInPaise = eventRecord.price_in_paise || 59900; // ₹599.00
+    // Determine requested ticket tier price (in paise) from server or verified payload
+    let pricePerSeatInPaise = eventRecord.price_in_paise || 39900;
+    if (payload.amount && parseInt(payload.amount, 10) > 0) {
+      pricePerSeatInPaise = Math.round(parseInt(payload.amount, 10) / seats);
+    }
     const totalAmountInPaise = seats * pricePerSeatInPaise;
 
     // 3. Initialize Razorpay Client & Create Order
@@ -81,6 +84,7 @@ exports.handler = async (event, context) => {
         customer_email: payload.email || '',
         customer_phone: payload.phone || '',
         seats_reserved: seats,
+        ticket_tier: payload.ticketName || 'Normal Entry',
         event_id: eventRecord.event_id,
         event_title: eventRecord.title
       }

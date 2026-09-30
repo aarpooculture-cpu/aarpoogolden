@@ -16,14 +16,14 @@ function getSupabaseClient() {
 /**
  * Retrieves event details from the `events` table by slug (or returns flagship fallback).
  */
-async function getEventBySlug(slug = 'aarpoo-vol-02') {
+async function getEventBySlug(slug = 'aarpoo-vol-03') {
   const supabase = getSupabaseClient();
   const fallbackEvent = {
-    event_id: '00000000-0000-0000-0000-000000000001',
-    slug: 'aarpoo-vol-02',
-    title: 'Aarpoo Vol. 02 — Thane',
-    price_in_paise: 59900, // ₹599
-    available_capacity: 350,
+    event_id: '00000000-0000-0000-0000-000000000003',
+    slug: 'aarpoo-vol-03',
+    title: 'AARPOO Vol. 03 — Bombay Cocktail Bar',
+    price_in_paise: 39900, // ₹399 Base Early Bird
+    available_capacity: 455,
     status: 'active'
   };
 
@@ -53,7 +53,7 @@ async function getEventBySlug(slug = 'aarpoo-vol-02') {
  */
 async function checkCapacity(event_id, seatsRequested = 1) {
   const supabase = getSupabaseClient();
-  if (!supabase) return { available: true, price_in_paise: 59900 };
+  if (!supabase) return { available: true, price_in_paise: 39900 };
 
   try {
     const { data, error } = await supabase
@@ -62,7 +62,7 @@ async function checkCapacity(event_id, seatsRequested = 1) {
       .eq('event_id', event_id)
       .single();
 
-    if (error || !data) return { available: true, price_in_paise: 59900 };
+    if (error || !data) return { available: true, price_in_paise: 39900 };
 
     const isAvailable = data.available_capacity >= seatsRequested;
     return {
@@ -71,7 +71,7 @@ async function checkCapacity(event_id, seatsRequested = 1) {
       remaining: data.available_capacity
     };
   } catch (err) {
-    return { available: true, price_in_paise: 59900 };
+    return { available: true, price_in_paise: 39900 };
   }
 }
 
@@ -132,14 +132,14 @@ async function updatePaymentTransactionStatus(order_id, status, payload = {}) {
 }
 
 /**
- * Generates a human-readable serial ticket_number (e.g. ARPOO-VOL2-8492) and saves ticket record into `tickets`.
+ * Generates a human-readable serial ticket_number (e.g. ARPOO-VOL3-8492) and saves ticket record into `tickets`.
  */
 async function createTicketRecord(ticketData) {
   const supabase = getSupabaseClient();
   
   // Generate human-readable serial ticket number (distinct from DB UUID)
   const serialSuffix = Math.floor(1000 + Math.random() * 9000);
-  const ticket_number = `ARPOO-VOL2-${serialSuffix}`;
+  const ticket_number = `ARPOO-VOL3-${serialSuffix}`;
 
   if (!supabase) {
     return {
@@ -157,12 +157,12 @@ async function createTicketRecord(ticketData) {
       .from('tickets')
       .insert([{
         ticket_number: ticket_number,
-        event_id: ticketData.event_id || '00000000-0000-0000-0000-000000000001',
+        event_id: ticketData.event_id || '00000000-0000-0000-0000-000000000003',
         customer_name: ticketData.customer_name,
         customer_email: ticketData.customer_email,
         customer_phone: ticketData.customer_phone,
         seats: ticketData.seats || 1,
-        amount: ticketData.amount || 599,
+        amount: ticketData.amount || 399,
         status: 'confirmed',
         invoice_id: null,
         invoice_url: null,
@@ -175,14 +175,6 @@ async function createTicketRecord(ticketData) {
     if (error) {
       console.error('[Supabase] Error creating ticket record:', error.message);
       return { success: false, error: error.message };
-    }
-
-    // Decrement available capacity in events table
-    if (ticketData.event_id) {
-      await supabase.rpc('decrement_event_capacity', {
-        e_id: ticketData.event_id,
-        seats_count: ticketData.seats || 1
-      }).catch(() => {});
     }
 
     return { success: true, ticket: data };

@@ -8,12 +8,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // Config defaults (overridden by wp_localize_script aarpooData if available)
   const config = window.aarpooData || {
     restUrl: '/api/',
-    ticketPrice: 599,
+    ticketPrice: 399,
     razorpayKeyId: 'rzp_test_ThByzGJVpxGnu9'
   };
 
   let selectedSeats = 1;
-  const ticketPrice = parseInt(config.ticketPrice, 10) || 599;
+  const ticketPrice = parseInt(config.ticketPrice, 10) || 399;
 
   // --------------------------------------------------------------------------
   // 0. Mobile Hamburger Navigation Toggle
@@ -79,7 +79,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const headerCartTotalEl = document.getElementById('header-cart-total');
   const ticketTierDisplayEl = document.getElementById('ticket-tier-price-display');
 
-  let activeTicketPrice = 599;
+  let activeTicketPrice = 399;
+  let activeTicketName = 'Normal Early Bird';
 
   function updatePriceDisplay(seats) {
     selectedSeats = seats;
@@ -105,14 +106,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Handle Ticket Tier Card Selection (Early Bird ₹599 vs VIP Pass ₹899)
+  // Handle Ticket Tier Card Selection
   if (ticketOptionCards.length > 0) {
+    // Check initial active card
+    const activeCard = document.querySelector('.ticket-option-card.active');
+    if (activeCard) {
+      activeTicketPrice = parseInt(activeCard.getAttribute('data-ticket-price'), 10) || 399;
+      activeTicketName = activeCard.getAttribute('data-ticket-name') || 'Normal Early Bird';
+    }
+
     ticketOptionCards.forEach(card => {
       card.addEventListener('click', function () {
         ticketOptionCards.forEach(c => c.classList.remove('active'));
         this.classList.add('active');
-        const price = parseInt(this.getAttribute('data-ticket-price'), 10) || 599;
+        const price = parseInt(this.getAttribute('data-ticket-price'), 10) || 399;
         activeTicketPrice = price;
+        activeTicketName = this.getAttribute('data-ticket-name') || 'Normal Early Bird';
         updatePriceDisplay(selectedSeats);
       });
     });
@@ -158,11 +167,13 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         // Step A: Call Serverless / REST API endpoint to create Razorpay Order
         const orderPayload = {
+          event_slug: 'aarpoo-vol-03',
           seats: selectedSeats,
+          tier: activeTicketName,
           name: name,
           email: email,
           phone: phone,
-          amount: selectedSeats * ticketPrice * 100
+          amount: selectedSeats * activeTicketPrice * 100
         };
 
         // Try Netlify serverless function endpoint first
@@ -205,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
             amount: orderData.amount,
             currency: orderData.currency || 'INR',
             name: 'Aarpoo Irroo Festivals',
-            description: `Aarpoo Vol. 02 Ticket (${selectedSeats} Seat${selectedSeats > 1 ? 's' : ''})`,
+            description: `AARPOO Vol. 03 Ticket — ${activeTicketName} (${selectedSeats} Ticket${selectedSeats > 1 ? 's' : ''})`,
             order_id: orderData.order_id,
             handler: async function (response) {
               // Step C: Verify payment signature server-side via HMAC SHA-256 validation
