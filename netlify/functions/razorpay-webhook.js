@@ -7,7 +7,7 @@ exports.handler = async (event, context) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET || 'xG57Z3Nh5ZnrHRQ5YavFUtcI';
+  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET || '89NJ5gCr0essd6lrnaBvczy8';
   const signature = event.headers['x-razorpay-signature'] || event.headers['X-Razorpay-Signature'];
 
   if (!signature && process.env.NODE_ENV === 'production') {

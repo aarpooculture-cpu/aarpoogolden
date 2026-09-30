@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const config = window.aarpooData || {
     restUrl: '/api/',
     ticketPrice: 399,
-    razorpayKeyId: 'rzp_test_ThByzGJVpxGnu9'
+    razorpayKeyId: 'rzp_test_TiLAW209X0NOcn'
   };
 
   let selectedSeats = 1;

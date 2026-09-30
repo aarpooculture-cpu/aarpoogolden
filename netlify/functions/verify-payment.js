@@ -69,7 +69,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const key_secret = process.env.RAZORPAY_KEY_SECRET || 'xG57Z3Nh5ZnrHRQ5YavFUtcI';
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || '89NJ5gCr0essd6lrnaBvczy8';
 
     // 1. Generate & Validate HMAC-SHA256 Signature Server-Side
     const hmac = crypto.createHmac('sha256', key_secret);
