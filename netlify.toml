@@ -89,6 +89,21 @@
   status = 200
 
 [[redirects]]
+  from = "/booking"
+  to = "/booking.html"
+  status = 200
+
+[[redirects]]
+  from = "/book-tickets"
+  to = "/booking.html"
+  status = 200
+
+[[redirects]]
+  from = "/book-tickets/*"
+  to = "/booking.html"
+  status = 200
+
+[[redirects]]
   from = "/privacy"
   to = "/policies.html"
   status = 200

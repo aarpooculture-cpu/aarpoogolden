@@ -2204,3 +2204,165 @@ img {
     padding: 1.75rem;
   }
 }
+
+/* --------------------------------------------------------------------------
+   15. Dedicated Booking & Checkout Page Styles (Reference Image Layout)
+   -------------------------------------------------------------------------- */
+.header-cart-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.header-cart-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  background: var(--bg-card-elevated);
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-warm);
+}
+
+.header-cart-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.header-cart-price {
+  color: var(--primary-gold);
+  font-weight: 800;
+}
+
+.booking-page-container {
+  padding: 3.5rem 0 5rem;
+}
+
+.booking-2col-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .booking-2col-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.booking-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.booking-right-col {
+  position: sticky;
+  top: 100px;
+}
+
+/* Choose Ticket Selectable Cards */
+.choose-ticket-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.choose-ticket-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ticket-option-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card-elevated);
+  border: 2px solid var(--border-warm);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.35rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.ticket-option-card:hover {
+  border-color: var(--primary-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+.ticket-option-card.active {
+  border-color: var(--primary-gold);
+  background: #FFFDF8;
+  box-shadow: 0 0 0 3px rgba(184, 107, 17, 0.15);
+}
+
+.ticket-option-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ticket-option-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--primary-gold-light);
+  color: var(--primary-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.ticket-option-card.active .ticket-option-icon {
+  background: var(--primary-gold);
+  color: #FFFFFF;
+}
+
+.ticket-option-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-dark);
+  margin-bottom: 0.15rem;
+}
+
+.ticket-option-sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.ticket-option-price {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-gold);
+}
+
+.venue-location-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: var(--bg-warm);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.15rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}

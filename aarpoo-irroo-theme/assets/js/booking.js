@@ -70,19 +70,30 @@ document.addEventListener('DOMContentLoaded', function () {
   // 1. Seat Quantity & Dynamic Price Calculation Engine
   // --------------------------------------------------------------------------
   const seatBtns = document.querySelectorAll('.seat-btn');
+  const ticketOptionCards = document.querySelectorAll('.ticket-option-card');
   const subtotalEl = document.getElementById('subtotal-val');
   const totalEl = document.getElementById('total-val');
   const groupNoticeEl = document.getElementById('group-notice');
   const seatsInputEl = document.getElementById('selected-seats-input');
+  const headerCartCountEl = document.getElementById('header-cart-count');
+  const headerCartTotalEl = document.getElementById('header-cart-total');
+  const ticketTierDisplayEl = document.getElementById('ticket-tier-price-display');
+
+  let activeTicketPrice = 599;
 
   function updatePriceDisplay(seats) {
     selectedSeats = seats;
-    const subtotal = seats * ticketPrice;
+    const subtotal = seats * activeTicketPrice;
     const total = subtotal; // GST inclusive
 
     if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString('en-IN');
     if (totalEl) totalEl.textContent = '₹' + total.toLocaleString('en-IN');
+    if (ticketTierDisplayEl) ticketTierDisplayEl.textContent = '₹' + activeTicketPrice.toLocaleString('en-IN');
     if (seatsInputEl) seatsInputEl.value = seats;
+
+    // Update Header Live Cart Bar (Reference layout matching)
+    if (headerCartCountEl) headerCartCountEl.textContent = seats;
+    if (headerCartTotalEl) headerCartTotalEl.textContent = '₹' + total.toLocaleString('en-IN');
 
     // Show/hide group notice for >= 6 seats
     if (groupNoticeEl) {
@@ -92,6 +103,19 @@ document.addEventListener('DOMContentLoaded', function () {
         groupNoticeEl.classList.remove('visible');
       }
     }
+  }
+
+  // Handle Ticket Tier Card Selection (Early Bird ₹599 vs VIP Pass ₹899)
+  if (ticketOptionCards.length > 0) {
+    ticketOptionCards.forEach(card => {
+      card.addEventListener('click', function () {
+        ticketOptionCards.forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        const price = parseInt(this.getAttribute('data-ticket-price'), 10) || 599;
+        activeTicketPrice = price;
+        updatePriceDisplay(selectedSeats);
+      });
+    });
   }
 
   if (seatBtns.length > 0) {
@@ -766,7 +790,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <span class="bar-title">Aarpoo Vol. 02</span>
           <span class="bar-price">₹599 / Seat • Early Bird</span>
         </div>
-        <a href="#booking-section" class="btn-gold">Book Now →</a>
+        <a href="booking.html" class="btn-gold">Book Now →</a>
       `;
       document.body.appendChild(stickyBar);
     }
