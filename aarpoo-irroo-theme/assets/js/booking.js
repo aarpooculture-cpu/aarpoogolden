@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const headerCartCountEl = document.getElementById('header-cart-count');
   const headerCartTotalEl = document.getElementById('header-cart-total');
   const ticketTierDisplayEl = document.getElementById('ticket-tier-price-display');
+  const coverTotalEl = document.getElementById('cover-total-val');
 
   let activeTicketPrice = 399;
   let activeTicketName = 'Normal Early Bird';
@@ -86,10 +87,12 @@ document.addEventListener('DOMContentLoaded', function () {
     selectedSeats = seats;
     const subtotal = seats * activeTicketPrice;
     const total = subtotal; // GST inclusive
+    const coverTotal = seats * 399;
 
     if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString('en-IN');
     if (totalEl) totalEl.textContent = '₹' + total.toLocaleString('en-IN');
     if (ticketTierDisplayEl) ticketTierDisplayEl.textContent = '₹' + activeTicketPrice.toLocaleString('en-IN');
+    if (coverTotalEl) coverTotalEl.textContent = '₹' + coverTotal.toLocaleString('en-IN');
     if (seatsInputEl) seatsInputEl.value = seats;
 
     // Update Header Live Cart Bar (Reference layout matching)

@@ -1368,16 +1368,15 @@ img {
     height: auto;
     max-height: 0;
     overflow: hidden;
-    background: rgba(10, 11, 16, 0.98);
+    background: #0A0B10;
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     flex-direction: column;
     padding: 0 1.5rem;
-    z-index: 100;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    border-left: none;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    z-index: 99999 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 3px solid var(--primary-gold);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     opacity: 0;
     visibility: hidden;
     transform: none;
@@ -1385,27 +1384,57 @@ img {
   }
 
   .site-nav.open {
-    max-height: 450px;
+    max-height: 520px;
     opacity: 1;
     visibility: visible;
-    padding: 1.25rem 1.5rem 1.75rem;
+    padding: 1rem 1.5rem 1.5rem;
   }
 
   .nav-links {
     flex-direction: column;
     gap: 0;
-    align-items: flex-start;
+    width: 100%;
+    align-items: stretch;
   }
 
   .nav-links li {
     width: 100%;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .nav-links li:last-child {
+    border-bottom: none;
   }
 
   .nav-link {
-    display: block;
-    padding: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 0;
     font-size: 1.1rem;
+    font-weight: 700;
+    color: #FAF6F0;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--primary-gold);
+    padding-left: 0.5rem;
+  }
+
+  .nav-link::after {
+    content: "→";
+    font-size: 1.1rem;
+    color: var(--primary-gold);
+    opacity: 0.7;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    opacity: 1;
+    transform: translateX(4px);
   }
 
   /* HIDE ALL BUTTONS IN MOBILE HEADER AS REQUESTED */
