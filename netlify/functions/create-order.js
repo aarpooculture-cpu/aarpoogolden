@@ -68,13 +68,30 @@ exports.handler = async (event, context) => {
     }
     const totalAmountInPaise = seats * pricePerSeatInPaise;
 
-    // 3. Initialize Razorpay Client & Create Order
+    // 3. Log initial transaction record into `payment_transactions`
+    const dbTx = await createPaymentTransaction({
+      order_id: null,
+      amount: totalAmountInPaise,
+      currency: 'INR',
+      event_id: eventRecord.event_id,
+      customer_email: payload.email
+    });
+
+    if (!dbTx.success) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ success: false, message: 'Failed to initialize transaction in database.' })
+      };
+    }
+
+    // 4. Initialize Razorpay Client & Create Order
     const instance = new Razorpay({
       key_id: key_id,
       key_secret: key_secret
     });
 
-    const receiptId = 'rcpt_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    const receiptId = dbTx.transaction_id || ('rcpt_' + Date.now() + '_' + Math.floor(Math.random() * 1000));
     const options = {
       amount: totalAmountInPaise,
       currency: 'INR',
@@ -92,14 +109,11 @@ exports.handler = async (event, context) => {
 
     const order = await instance.orders.create(options);
 
-    // 4. Log initial transaction record into `payment_transactions`
-    await createPaymentTransaction({
-      order_id: order.id,
-      amount: totalAmountInPaise,
-      currency: 'INR',
-      event_id: eventRecord.event_id,
-      customer_email: payload.email
-    });
+    // 5. Update the transaction with the real Razorpay Order ID
+    if (dbTx.transaction_id) {
+      const { updateTransactionOrderId } = require('./utils/supabase');
+      await updateTransactionOrderId(dbTx.transaction_id, order.id);
+    }
 
     return {
       statusCode: 200,

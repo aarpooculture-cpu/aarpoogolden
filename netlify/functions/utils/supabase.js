@@ -86,7 +86,7 @@ async function createPaymentTransaction(txData) {
     const { data, error } = await supabase
       .from('payment_transactions')
       .insert([{
-        razorpay_order_id: txData.order_id,
+        razorpay_order_id: txData.order_id || null,
         amount: txData.amount / 100, // Convert paise to INR
         currency: txData.currency || 'INR',
         status: 'created',
@@ -216,12 +216,33 @@ async function saveInquiry(inquiryData) {
   }
 }
 
+/**
+ * Updates the Razorpay Order ID for a previously created transaction.
+ */
+async function updateTransactionOrderId(transaction_id, razorpay_order_id) {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { success: true };
+
+  try {
+    const { error } = await supabase
+      .from('payment_transactions')
+      .update({ razorpay_order_id: razorpay_order_id })
+      .eq('transaction_id', transaction_id);
+
+    if (error) console.error('[Supabase] Error updating transaction order ID:', error.message);
+    return { success: !error };
+  } catch (err) {
+    return { success: false };
+  }
+}
+
 module.exports = {
   getSupabaseClient,
   getEventBySlug,
   checkCapacity,
   createPaymentTransaction,
   updatePaymentTransactionStatus,
+  updateTransactionOrderId,
   createTicketRecord,
   saveInquiry
 };
