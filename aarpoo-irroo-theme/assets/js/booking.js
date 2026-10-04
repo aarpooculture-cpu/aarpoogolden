@@ -460,8 +460,8 @@ document.addEventListener('DOMContentLoaded', function () {
         alert(msg);
         partnerForm.reset();
       } catch (err) {
-        alert('Thank you! Your proposal inquiry has been submitted.');
-        partnerForm.reset();
+        alert('Failed to submit inquiry. Please try again later.');
+        console.error('Submission error:', err);
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -507,8 +507,8 @@ document.addEventListener('DOMContentLoaded', function () {
         alert(msg);
         contactForm.reset();
       } catch (err) {
-        alert('Thank you for reaching out! We have received your message.');
-        contactForm.reset();
+        alert('Failed to send message. Please try again later.');
+        console.error('Submission error:', err);
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -554,8 +554,8 @@ document.addEventListener('DOMContentLoaded', function () {
         alert(msg);
         footerContactForm.reset();
       } catch (err) {
-        alert('Thank you! We have received your message.');
-        footerContactForm.reset();
+        alert('Failed to send message. Please try again later.');
+        console.error('Submission error:', err);
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
