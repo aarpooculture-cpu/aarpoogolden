@@ -129,12 +129,24 @@ exports.handler = async (event, context) => {
   } catch (error) {
     console.error('Razorpay Order Creation Error:', error);
     const status = error.statusCode || 500;
+    
+    let detailedError = 'Failed to create Razorpay order';
+    if (error.error && error.error.description) {
+      detailedError = error.error.description;
+    } else if (error.message) {
+      detailedError = error.message;
+    } else if (typeof error === 'string') {
+      detailedError = error;
+    } else {
+      detailedError = 'Razorpay Error: ' + JSON.stringify(error);
+    }
+
     return {
       statusCode: status,
       headers,
       body: JSON.stringify({
         success: false,
-        message: error.description || error.message || 'Failed to create Razorpay order'
+        message: detailedError
       })
     };
   }
