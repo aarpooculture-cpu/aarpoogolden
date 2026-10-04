@@ -1,6 +1,6 @@
 const Razorpay = require('razorpay');
 require('dotenv').config();
-const { getEventBySlug, checkCapacity, createPaymentTransaction, updateTransactionOrderId } = require('./utils/supabase');
+const { getEventBySlug, checkCapacity, createTicketRecord } = require('./utils/supabase');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -68,50 +68,22 @@ exports.handler = async (event, context) => {
     }
     const totalAmountInPaise = seats * pricePerSeatInPaise;
 
-    // 3. Log initial transaction record into `payment_transactions`
-    const dbTx = await createPaymentTransaction({
-      order_id: null,
-      amount: totalAmountInPaise,
-      currency: 'INR',
+    // 3. Create Ticket Record directly (bypassing payment)
+    const ticketData = await createTicketRecord({
       event_id: eventRecord.event_id,
-      customer_email: payload.email
+      customer_name: payload.name || 'Guest User',
+      customer_email: payload.email,
+      customer_phone: payload.phone || '',
+      seats: seats,
+      amount: totalAmountInPaise / 100 // store in rupees
     });
 
-    if (!dbTx.success) {
+    if (!ticketData.success) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ success: false, message: 'Failed to initialize transaction in database.' })
+        body: JSON.stringify({ success: false, message: 'Failed to create booking in database.' })
       };
-    }
-
-    // 4. Initialize Razorpay Client & Create Order
-    const instance = new Razorpay({
-      key_id: key_id,
-      key_secret: key_secret
-    });
-
-    const receiptId = dbTx.transaction_id || ('rcpt_' + Date.now() + '_' + Math.floor(Math.random() * 1000));
-    const options = {
-      amount: totalAmountInPaise,
-      currency: 'INR',
-      receipt: receiptId,
-      notes: {
-        customer_name: payload.name || '',
-        customer_email: payload.email || '',
-        customer_phone: payload.phone || '',
-        seats_reserved: seats,
-        ticket_tier: payload.ticketName || 'Normal Entry',
-        event_id: eventRecord.event_id,
-        event_title: eventRecord.title
-      }
-    };
-
-    const order = await instance.orders.create(options);
-
-    // 5. Update the transaction with the real Razorpay Order ID
-    if (dbTx.transaction_id) {
-      await updateTransactionOrderId(dbTx.transaction_id, order.id);
     }
 
     return {
@@ -119,34 +91,20 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({
         success: true,
-        order_id: order.id,
-        amount: order.amount,
-        currency: order.currency,
-        key_id: key_id,
-        event_title: eventRecord.title
+        bypass_payment: true,
+        ticket_number: ticketData.ticket.ticket_number,
+        message: 'Your booking has been confirmed!'
       })
     };
   } catch (error) {
-    console.error('Razorpay Order Creation Error:', error);
-    const status = error.statusCode || 500;
+    console.error('Booking Creation Error:', error);
     
-    let detailedError = 'Failed to create Razorpay order';
-    if (error.error && error.error.description) {
-      detailedError = error.error.description;
-    } else if (error.message) {
-      detailedError = error.message;
-    } else if (typeof error === 'string') {
-      detailedError = error;
-    } else {
-      detailedError = 'Razorpay Error: ' + JSON.stringify(error);
-    }
-
     return {
-      statusCode: status,
+      statusCode: 500,
       headers,
       body: JSON.stringify({
         success: false,
-        message: detailedError
+        message: 'Internal server error while creating booking.'
       })
     };
   }

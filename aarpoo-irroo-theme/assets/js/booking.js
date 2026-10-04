@@ -210,6 +210,23 @@ document.addEventListener('DOMContentLoaded', function () {
           throw new Error(errMsg);
         }
 
+        if (orderData.bypass_payment) {
+          resetCheckoutBtn();
+          alert(`Success! ${orderData.message}\nTicket ID: ${orderData.ticket_number || ''}`);
+          if (bookingForm) bookingForm.reset();
+          
+          // Optionally redirect or show success UI here
+          document.body.innerHTML += `
+            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;text-align:center;padding:2rem;">
+              <h2 style="color:#FFB84D;margin-bottom:1rem;font-size:2rem;">Booking Successful!</h2>
+              <p style="font-size:1.2rem;margin-bottom:0.5rem;">Your request has been received.</p>
+              <p style="color:#9CA3AF;margin-bottom:2rem;">Ticket ID: ${orderData.ticket_number}</p>
+              <button onclick="window.location.reload()" style="background:#FFB84D;color:#12141F;border:none;padding:1rem 2rem;font-weight:bold;border-radius:30px;cursor:pointer;">Go Back</button>
+            </div>
+          `;
+          return;
+        }
+
         const razorpayKey = orderData.key_id || config.razorpayKeyId || '';
 
         // Step B: Check if Razorpay Checkout SDK is loaded & open modal
