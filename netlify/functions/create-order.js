@@ -1,6 +1,5 @@
-const Razorpay = require('razorpay');
 require('dotenv').config();
-const { getEventBySlug, checkCapacity, createTicketRecord } = require('./utils/supabase');
+const { getEventBySlug, getTicketTypeForEvent, checkCapacity, checkTicketTypeCapacity, createTicketRecord } = require('./utils/supabase');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -23,20 +22,17 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_TiLAW209X0NOcn';
-    const key_secret = process.env.RAZORPAY_KEY_SECRET || '89NJ5gCr0essd6lrnaBvczy8';
-
-    if (!key_id || !key_secret) {
-      return {
-        statusCode: 401,
-        headers,
-        body: JSON.stringify({ success: false, message: 'Razorpay API credentials missing.' })
-      };
-    }
-
     const payload = JSON.parse(event.body || '{}');
     const seats = Math.max(1, parseInt(payload.seats, 10) || 1);
-    const eventSlug = payload.eventSlug || 'aarpoo-vol-03';
+    const eventSlug = payload.event_slug || payload.eventSlug || 'aarpoo-vol-03';
+
+    if (!payload.name || !payload.email || !payload.phone) {
+      return { statusCode: 400, headers, body: JSON.stringify({ success: false, message: 'Name, email, and phone are required.' }) };
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(payload.email)) {
+      return { statusCode: 400, headers, body: JSON.stringify({ success: false, message: 'Please provide a valid email address.' }) };
+    }
 
     // 1. Fetch Event Details from Database
     const eventRecord = await getEventBySlug(eventSlug);
@@ -61,21 +57,41 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Determine requested ticket tier price (in paise) from server or verified payload
-    let pricePerSeatInPaise = eventRecord.price_in_paise || 39900;
-    if (payload.amount && parseInt(payload.amount, 10) > 0) {
-      pricePerSeatInPaise = Math.round(parseInt(payload.amount, 10) / seats);
+    // Resolve the selected category from Supabase. The browser-supplied amount
+    // is deliberately ignored so users cannot alter pricing client-side.
+    const ticketType = await getTicketTypeForEvent(
+      eventRecord.event_id,
+      payload.ticket_type_id || null,
+      payload.ticket_type_code || payload.tier_code || null
+    );
+    if (!ticketType) {
+      return { statusCode: 400, headers, body: JSON.stringify({ success: false, message: 'Please select an available ticket category.' }) };
     }
+
+    const categoryCapacity = await checkTicketTypeCapacity(ticketType, seats);
+    if (!categoryCapacity.available) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ success: false, message: `This ticket category has only ${categoryCapacity.remaining || 0} seats remaining.` })
+      };
+    }
+
+    const pricePerSeatInPaise = ticketType.price_in_paise;
     const totalAmountInPaise = seats * pricePerSeatInPaise;
 
-    // 3. Create Ticket Record directly (bypassing payment)
+    // 3. Record the booking intent. Payment remains intentionally deferred.
     const ticketData = await createTicketRecord({
       event_id: eventRecord.event_id,
+      ticket_type_id: ticketType.ticket_type_id,
+      ticket_type_name: ticketType.name,
+      unit_price_in_paise: pricePerSeatInPaise,
       customer_name: payload.name || 'Guest User',
       customer_email: payload.email,
       customer_phone: payload.phone || '',
       seats: seats,
-      amount: totalAmountInPaise / 100 // store in rupees
+      amount: totalAmountInPaise / 100,
+      status: 'payment_pending'
     });
 
     if (!ticketData.success) {
@@ -91,9 +107,11 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({
         success: true,
-        bypass_payment: true,
+        booking_initiated: true,
         ticket_number: ticketData.ticket.ticket_number,
-        message: 'Your booking has been confirmed!'
+        ticket_type: ticketType.name,
+        amount: totalAmountInPaise / 100,
+        message: 'Your booking request has been received. We will contact you offline for payment.'
       })
     };
   } catch (error) {

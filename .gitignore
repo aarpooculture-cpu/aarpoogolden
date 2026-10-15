@@ -2,6 +2,9 @@
 .env
 .env.local
 .env.production
+.dev.vars
+.dev.vars.*
+.wrangler/
 
 # Dependencies
 node_modules/

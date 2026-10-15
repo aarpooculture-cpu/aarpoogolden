@@ -39,8 +39,6 @@
                         <li><a href="events.html" class="nav-link active">Events</a></li>
                         <li><a href="about.html" class="nav-link">About</a></li>
                         <li><a href="partner.html" class="nav-link">Partner</a></li>
-                        <li><a href="booking.html" class="nav-link">Book Tickets</a></li>
-                        <li><a href="policies.html" class="nav-link">Policies</a></li>
                     </ul>
                 </nav>
 
@@ -68,11 +66,24 @@
         </section>
 
         <!-- Flagship Featured Event -->
+        <section class="section-padding" style="padding-top:1rem; padding-bottom:1rem;">
+            <div class="container">
+                <div class="section-header-centered">
+                    <span class="section-kicker">Published Events</span>
+                    <h2 class="section-title-large">Find your <em class="gold-italic">next night out.</em></h2>
+                </div>
+                <div id="events-catalog" class="acts-4-grid" style="margin-top:2rem;">
+                    <p style="color:var(--text-muted);">Loading events…</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flagship Featured Event -->
         <section class="section-padding" style="padding-top:1rem;">
             <div class="container">
                 <div class="hero-photo-banner-wrapper fade-in-up" style="margin-bottom:2rem;">
                     <span class="sticker-badge alt-red hero-photo-badge fun-rotate-right">🔥 EARLY BIRD LIVE @ ₹399</span>
-                    <img src="./aarpoo-irroo-theme/assets/images/gallery/aarpoo-banner.jpg" alt="AARPOO Vol. 03 Official Festival Banner">
+                    <img data-lazy-src="./aarpoo-irroo-theme/assets/images/gallery/aarpoo-banner.jpg" alt="AARPOO Vol. 03 Official Festival Banner" loading="lazy" decoding="async">
                 </div>
 
                 <div class="hero-poster-card fade-in-up" style="max-width:900px; margin:0 auto; background:var(--bg-card-elevated);">
@@ -115,7 +126,7 @@
 
                 <div class="photo-gallery-grid fade-in-up">
                     <div class="photo-card fun-rotate-left">
-                        <img src="./aarpoo-irroo-theme/assets/images/gallery/crowd-cheering.jpg" alt="AARPOO Vol. 02 Sold Out Night">
+                        <img data-lazy-src="./aarpoo-irroo-theme/assets/images/gallery/crowd-cheering.jpg" alt="AARPOO Vol. 02 Sold Out Night" loading="lazy" decoding="async">
                         <div class="photo-caption-overlay">
                             <span class="sticker-badge alt-red" style="font-size:0.7rem; padding:0.2rem 0.6rem; margin-bottom:0.5rem;">SOLD OUT</span>
                             <h4>AARPOO Vol. 02 — Thane Chapter</h4>
@@ -124,7 +135,7 @@
                     </div>
 
                     <div class="photo-card fun-rotate-right">
-                        <img src="./aarpoo-irroo-theme/assets/images/gallery/electric-violin.jpg" alt="AARPOO Vol. 01 Thane Debut">
+                        <img data-lazy-src="./aarpoo-irroo-theme/assets/images/gallery/electric-violin.jpg" alt="AARPOO Vol. 01 Thane Debut" loading="lazy" decoding="async">
                         <div class="photo-caption-overlay">
                             <span class="sticker-badge alt-red" style="font-size:0.7rem; padding:0.2rem 0.6rem; margin-bottom:0.5rem;">SOLD OUT</span>
                             <h4>AARPOO Vol. 01 — Thane Debut</h4>
@@ -133,7 +144,7 @@
                     </div>
 
                     <div class="photo-card fun-rotate-left">
-                        <img src="./aarpoo-irroo-theme/assets/images/gallery/community-adda.jpg" alt="Bandra Pop-up Chai Adda">
+                        <img data-lazy-src="./aarpoo-irroo-theme/assets/images/gallery/community-adda.jpg" alt="Bandra Pop-up Chai Adda" loading="lazy" decoding="async">
                         <div class="photo-caption-overlay">
                             <span class="sticker-badge alt-purple" style="font-size:0.7rem; padding:0.2rem 0.6rem; margin-bottom:0.5rem;">POP-UP EDITION</span>
                             <h4>Chai &amp; Comedy Adda</h4>
@@ -163,7 +174,7 @@
 
                     <!-- Single Clean Contact Line -->
                     <p style="font-size:0.85rem; color:var(--primary-gold); font-weight:700;">
-                        📩 Direct Inquiries: <a href="mailto:aarpooirroo@gmail.com" style="color:var(--primary-gold); text-decoration:underline;">aarpooirroo@gmail.com</a> • Majiwada, Thane, Mumbai, India
+                        📩 Direct Inquiries: <a href="mailto:aarpooculture@gmail.com" style="color:var(--primary-gold); text-decoration:underline;">aarpooculture@gmail.com</a> • Majiwada, Thane, Mumbai, India
                     </p>
                 </div>
 
@@ -201,6 +212,7 @@
         </div>
     </footer>
 
+    <script src="./aarpoo-irroo-theme/assets/js/events-catalog.js"></script>
     <script src="./aarpoo-irroo-theme/assets/js/booking.js"></script>
 </body>
 </html>

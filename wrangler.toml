@@ -1,0 +1,8 @@
+name = "aarpoo-culture"
+compatibility_date = "2026-10-15"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "."
+
+[vars]
+# Add non-secret configuration here only. Store Supabase and Razorpay secrets
+# in the Cloudflare dashboard under Settings → Variables and Secrets.

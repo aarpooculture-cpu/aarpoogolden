@@ -1,4 +1,4 @@
-const { getBookings, getPartnerInquiries, getContactMessages } = require('./utils/supabase');
+const { getBookings, getPartnerInquiries, getContactMessages, getEvents, getEventBySlug, getTicketTypesByEvent } = require('./utils/supabase');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -17,6 +17,21 @@ exports.handler = async (event, context) => {
 
   try {
     const result = {};
+
+    if (type === 'events' || type === 'all') {
+      const eventsRes = await getEvents(100);
+      result.events = eventsRes.data || [];
+    }
+
+    if (type === 'event') {
+      const eventRecord = await getEventBySlug(params.slug || '');
+      if (eventRecord) {
+        const ticketTypesRes = await getTicketTypesByEvent(eventRecord.event_id);
+        result.event = { ...eventRecord, ticket_types: ticketTypesRes.data || [] };
+      } else {
+        result.event = null;
+      }
+    }
 
     if (type === 'bookings' || type === 'all') {
       const bookingsRes = await getBookings(100);
@@ -39,6 +54,7 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({
         success: true,
         counts: {
+          events: result.events ? result.events.length : 0,
           bookings: result.bookings ? result.bookings.length : 0,
           partners: result.partner_inquiries ? result.partner_inquiries.length : 0,
           contacts: result.contact_messages ? result.contact_messages.length : 0

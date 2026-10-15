@@ -1,0 +1,10 @@
+# Immutable, fingerprinted-like static assets can be cached for a year.
+/aarpoo-irroo-theme/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML should revalidate so content and event availability update promptly.
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/api/*
+  Cache-Control: no-store
