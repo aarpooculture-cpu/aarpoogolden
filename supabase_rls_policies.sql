@@ -1,102 +1,30 @@
--- ============================================
--- RLS Policies for Aarpoo Database Tables
--- Run this in Supabase SQL Editor
--- ============================================
+-- RLS and grants for the Aarpoo public schema.
+-- Public visitors may read published event inventory only. All customer,
+-- inquiry, and payment writes happen through server-side functions.
 
--- 1. EVENTS table policies
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
-
--- Allow anyone to read active events
-CREATE POLICY "Allow public read access to events"
-  ON public.events FOR SELECT
-  USING (true);
-
--- Allow service role full access (for admin operations)
-CREATE POLICY "Allow service role full access to events"
-  ON public.events FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
--- 2. PAYMENT_TRANSACTIONS table policies
+ALTER TABLE public.ticket_types ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tickets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.inquiries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.payment_transactions ENABLE ROW LEVEL SECURITY;
 
--- Allow service role to insert transactions
-CREATE POLICY "Allow insert payment transactions"
-  ON public.payment_transactions FOR INSERT
-  WITH CHECK (true);
+REVOKE ALL ON public.events, public.ticket_types, public.tickets,
+  public.inquiries, public.payment_transactions FROM anon, authenticated;
 
--- Allow service role to read transactions
-CREATE POLICY "Allow read payment transactions"
-  ON public.payment_transactions FOR SELECT
-  USING (true);
+GRANT SELECT ON public.events, public.ticket_types TO anon, authenticated;
+GRANT ALL ON public.events, public.ticket_types, public.tickets,
+  public.inquiries, public.payment_transactions TO service_role;
 
--- Allow service role to update transactions
-CREATE POLICY "Allow update payment transactions"
-  ON public.payment_transactions FOR UPDATE
-  USING (true)
-  WITH CHECK (true);
+DROP POLICY IF EXISTS "Allow public read access to events" ON public.events;
+DROP POLICY IF EXISTS "Public can read published active events" ON public.events;
+CREATE POLICY "Public can read published active events"
+  ON public.events FOR SELECT TO anon, authenticated
+  USING (is_published = true AND status = 'active');
 
--- 3. TICKETS table policies
-ALTER TABLE public.tickets ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public can read active ticket types" ON public.ticket_types;
+CREATE POLICY "Public can read active ticket types"
+  ON public.ticket_types FOR SELECT TO anon, authenticated
+  USING (status = 'active');
 
-CREATE POLICY "Allow insert tickets"
-  ON public.tickets FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Allow read tickets"
-  ON public.tickets FOR SELECT
-  USING (true);
-
-CREATE POLICY "Allow update tickets"
-  ON public.tickets FOR UPDATE
-  USING (true)
-  WITH CHECK (true);
-
--- 4. INQUIRIES table policies
-ALTER TABLE public.inquiries ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow insert inquiries"
-  ON public.inquiries FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Allow read inquiries"
-  ON public.inquiries FOR SELECT
-  USING (true);
-
--- 5. PARTNER_INQUIRIES table policies
-ALTER TABLE public.partner_inquiries ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow insert partner inquiries"
-  ON public.partner_inquiries FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Allow read partner inquiries"
-  ON public.partner_inquiries FOR SELECT
-  USING (true);
-
--- 6. CONTACT_MESSAGES table policies
-ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow insert contact messages"
-  ON public.contact_messages FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Allow read contact messages"
-  ON public.contact_messages FOR SELECT
-  USING (true);
-
--- 7. BOOKINGS table policies
-ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow insert bookings"
-  ON public.bookings FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Allow read bookings"
-  ON public.bookings FOR SELECT
-  USING (true);
-
-CREATE POLICY "Allow update bookings"
-  ON public.bookings FOR UPDATE
-  USING (true)
-  WITH CHECK (true);
+-- No anon/authenticated policies are created for tickets, inquiries, or
+-- payment_transactions. The service role is kept only in server-side env vars.

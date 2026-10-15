@@ -82,6 +82,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let activeTicketPrice = 399;
   let activeTicketName = 'Normal Early Bird';
+  let activeTicketTypeId = '';
+  let activeTicketTypeCode = 'normal-early-bird';
 
   function updatePriceDisplay(seats) {
     selectedSeats = seats;
@@ -116,6 +118,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (activeCard) {
       activeTicketPrice = parseInt(activeCard.getAttribute('data-ticket-price'), 10) || 399;
       activeTicketName = activeCard.getAttribute('data-ticket-name') || 'Normal Early Bird';
+      activeTicketTypeId = activeCard.getAttribute('data-ticket-type-id') || '';
+      activeTicketTypeCode = activeCard.getAttribute('data-ticket-type-code') || 'normal-early-bird';
     }
 
     ticketOptionCards.forEach(card => {
@@ -125,10 +129,35 @@ document.addEventListener('DOMContentLoaded', function () {
         const price = parseInt(this.getAttribute('data-ticket-price'), 10) || 399;
         activeTicketPrice = price;
         activeTicketName = this.getAttribute('data-ticket-name') || 'Normal Early Bird';
+        activeTicketTypeId = this.getAttribute('data-ticket-type-id') || '';
+        activeTicketTypeCode = this.getAttribute('data-ticket-type-code') || '';
         updatePriceDisplay(selectedSeats);
       });
     });
   }
+
+  // Event pages load their ticket categories asynchronously from Supabase.
+  document.addEventListener('ticket-types-loaded', function () {
+    const firstCard = document.querySelector('.ticket-option-card.active') || document.querySelector('.ticket-option-card');
+    if (!firstCard) return;
+    activeTicketPrice = parseInt(firstCard.getAttribute('data-ticket-price'), 10) || 399;
+    activeTicketName = firstCard.getAttribute('data-ticket-name') || 'General Entry';
+    activeTicketTypeId = firstCard.getAttribute('data-ticket-type-id') || '';
+    activeTicketTypeCode = firstCard.getAttribute('data-ticket-type-code') || '';
+    updatePriceDisplay(selectedSeats);
+  });
+
+  document.addEventListener('click', function (event) {
+    const card = event.target.closest('.ticket-option-card');
+    if (!card || Array.from(ticketOptionCards).includes(card)) return;
+    document.querySelectorAll('.ticket-option-card').forEach(item => item.classList.remove('active'));
+    card.classList.add('active');
+    activeTicketPrice = parseInt(card.getAttribute('data-ticket-price'), 10) || 399;
+    activeTicketName = card.getAttribute('data-ticket-name') || 'General Entry';
+    activeTicketTypeId = card.getAttribute('data-ticket-type-id') || '';
+    activeTicketTypeCode = card.getAttribute('data-ticket-type-code') || '';
+    updatePriceDisplay(selectedSeats);
+  });
 
   if (seatBtns.length > 0) {
     seatBtns.forEach(btn => {
@@ -144,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // --------------------------------------------------------------------------
-  // 2. Server-Side Ticketing & Razorpay API Checkout Integration
+  // 2. Booking intent flow (payment integration intentionally paused)
   // --------------------------------------------------------------------------
   const bookingForm = document.getElementById('aarpoo-booking-form');
   const checkoutBtn = document.getElementById('btn-razorpay-checkout');
@@ -158,32 +187,40 @@ document.addEventListener('DOMContentLoaded', function () {
       const phone = document.getElementById('customer-phone').value.trim();
 
       if (!name || !email || !phone) {
-        alert('Please complete all required fields (Name, Email, and Phone).');
+        showBookingToast('Please complete your name, email, and WhatsApp number.', 'error');
+        return;
+      }
+
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        showBookingToast('Please enter a valid email address.', 'error');
         return;
       }
 
       if (checkoutBtn) {
         checkoutBtn.disabled = true;
-        checkoutBtn.innerHTML = '<span class="rzp-logo-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.4 2L4 14.5H11L9.6 22L20 9.5H13L13.4 2Z" fill="#3395FF"/></svg></span><span>Connecting to Razorpay Secure Gateway...</span>';
+        checkoutBtn.textContent = 'Saving booking...';
       }
 
       try {
-        // Step A: Call Serverless / REST API endpoint to create Razorpay Order
-        const orderPayload = {
-          event_slug: 'aarpoo-vol-03',
+        // The backend records the booking intent only. Razorpay remains available
+        // in the repository for the later payment-enabled phase.
+        const bookingPayload = {
+          event_slug: bookingForm.dataset.eventSlug || 'aarpoo-vol-03',
+          event_id: bookingForm.dataset.eventId || '',
           seats: selectedSeats,
           tier: activeTicketName,
+          ticket_type_id: activeTicketTypeId,
+          ticket_type_code: activeTicketTypeCode || bookingForm.dataset.ticketTypeCode || 'normal-early-bird',
           name: name,
           email: email,
           phone: phone,
-          amount: selectedSeats * activeTicketPrice * 100
+          displayed_amount: selectedSeats * activeTicketPrice * 100
         };
 
-        // Try Vercel / Netlify serverless function endpoint first
         let res = await safeFetchJson('/api/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderPayload)
+          body: JSON.stringify(bookingPayload)
         });
 
         // Fallback to WP REST endpoint if Netlify serverless function returned non-JSON / network error
@@ -198,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function () {
               'Content-Type': 'application/json',
               'X-WP-Nonce': config.nonce || ''
             },
-            body: JSON.stringify(orderPayload)
+            body: JSON.stringify(bookingPayload)
           });
           if (fallbackRes.data) res = fallbackRes;
         }
@@ -206,95 +243,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const orderData = res.data || {};
 
         if (!orderData.success) {
-          const errMsg = orderData.message || 'Unable to connect to booking gateway. Please try again.';
+          const errMsg = orderData.message || 'We could not save your booking. Please try again.';
           throw new Error(errMsg);
         }
 
-        if (orderData.bypass_payment) {
-          resetCheckoutBtn();
-          alert(`Success! ${orderData.message}\nTicket ID: ${orderData.ticket_number || ''}`);
-          if (bookingForm) bookingForm.reset();
-          
-          // Optionally redirect or show success UI here
-          document.body.innerHTML += `
-            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;text-align:center;padding:2rem;">
-              <h2 style="color:#FFB84D;margin-bottom:1rem;font-size:2rem;">Booking Successful!</h2>
-              <p style="font-size:1.2rem;margin-bottom:0.5rem;">Your request has been received.</p>
-              <p style="color:#9CA3AF;margin-bottom:2rem;">Ticket ID: ${orderData.ticket_number}</p>
-              <button onclick="window.location.reload()" style="background:#FFB84D;color:#12141F;border:none;padding:1rem 2rem;font-weight:bold;border-radius:30px;cursor:pointer;">Go Back</button>
-            </div>
-          `;
-          return;
-        }
-
-        const razorpayKey = orderData.key_id || config.razorpayKeyId || '';
-
-        // Step B: Check if Razorpay Checkout SDK is loaded & open modal
-        if (typeof Razorpay !== 'undefined' && razorpayKey) {
-          const options = {
-            key: razorpayKey,
-            amount: orderData.amount,
-            currency: orderData.currency || 'INR',
-            name: 'Aarpoo Irroo Festivals',
-            description: `AARPOO Vol. 03 Ticket — ${activeTicketName} (${selectedSeats} Ticket${selectedSeats > 1 ? 's' : ''})`,
-            order_id: orderData.order_id,
-            handler: async function (response) {
-              // Step C: Verify payment signature server-side via HMAC SHA-256 validation
-              await verifyPaymentServerSide({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                name: name,
-                email: email,
-                phone: phone,
-                seats: selectedSeats,
-                amount: orderData.amount / 100
-              });
-            },
-            modal: {
-              ondismiss: function () {
-                console.log('Razorpay modal dismissed by user.');
-                resetCheckoutBtn();
-              }
-            },
-            prefill: {
-              name: name,
-              email: email,
-              contact: phone
-            },
-            theme: {
-              color: '#3395FF'
-            }
-          };
-
-          const rzp = new Razorpay(options);
-          rzp.on('payment.failed', function (response) {
-            alert('Payment failed: ' + (response.error.description || response.error.reason));
-            resetCheckoutBtn();
-          });
-          rzp.open();
-        } else {
-          // Fallback Demo Mode for testing UI without live keys configured
-          setTimeout(async () => {
-            const mockOrderId = orderData.order_id || ('order_demo_' + Date.now());
-            const mockPaymentId = 'pay_demo_' + Math.random().toString(36).substring(2, 10);
-            const mockSig = 'demo_sig_' + Date.now();
-
-            await verifyPaymentServerSide({
-              razorpay_order_id: mockOrderId,
-              razorpay_payment_id: mockPaymentId,
-              razorpay_signature: mockSig,
-              name: name,
-              email: email,
-              phone: phone,
-              seats: selectedSeats,
-              amount: selectedSeats * ticketPrice,
-              is_demo: true
-            });
-          }, 800);
-        }
+        showBookingToast(`Booking request received. Reference: ${orderData.ticket_number || 'saved'}. We will contact you for payment.`, 'success');
+        if (bookingForm) bookingForm.reset();
+        updatePriceDisplay(1);
       } catch (err) {
-        alert('Booking Notice: ' + err.message);
+        showBookingToast(err.message || 'We could not save your booking. Please try again.', 'error');
+      } finally {
         resetCheckoutBtn();
       }
     });
@@ -303,8 +261,21 @@ document.addEventListener('DOMContentLoaded', function () {
   function resetCheckoutBtn() {
     if (checkoutBtn) {
       checkoutBtn.disabled = false;
-      checkoutBtn.innerHTML = '<span class="rzp-logo-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.4 2L4 14.5H11L9.6 22L20 9.5H13L13.4 2Z" fill="#3395FF"/></svg></span><span>Pay &amp; Confirm Seats via Razorpay →</span>';
+      checkoutBtn.textContent = 'Pay Now →';
     }
+  }
+
+  function showBookingToast(message, type) {
+    const existingToast = document.getElementById('booking-toast');
+    if (existingToast) existingToast.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'booking-toast';
+    toast.setAttribute('role', 'status');
+    toast.textContent = message;
+    toast.style.cssText = `position:fixed;right:1.25rem;bottom:1.25rem;z-index:100000;max-width: min(420px, calc(100vw - 2.5rem));padding:1rem 1.25rem;border-radius:12px;color:#fff;background:${type === 'error' ? '#b42318' : '#087443'};box-shadow:0 12px 30px rgba(0,0,0,.2);font-weight:700;line-height:1.4;`;
+    document.body.appendChild(toast);
+    window.setTimeout(() => toast.remove(), type === 'error' ? 5000 : 7000);
   }
 
   async function verifyPaymentServerSide(paymentPayload) {
@@ -856,4 +827,3 @@ document.addEventListener('DOMContentLoaded', function () {
     checkStickyVisibility();
   })();
 });
-

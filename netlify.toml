@@ -75,7 +75,7 @@
 
 [[redirects]]
   from = "/events/*"
-  to = "/events.html"
+  to = "/event.html"
   status = 200
 
 [[redirects]]

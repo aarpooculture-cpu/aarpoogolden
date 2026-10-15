@@ -48,6 +48,9 @@
   --transition-slow: 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Homepage event carousel */
+.event-carousel-shell{display:flex;align-items:center;gap:1rem}.event-carousel-track{flex:1;min-width:0}.event-carousel-arrow{width:44px;height:44px;border:1px solid var(--border-warm);border-radius:50%;background:var(--bg-card-elevated);color:var(--text-dark);font-size:1.25rem;cursor:pointer}.event-carousel-arrow:hover{background:var(--primary-gold);color:#fff}
+
 /* --------------------------------------------------------------------------
    2. Global Reset & Base Styles
    -------------------------------------------------------------------------- */
