@@ -9,9 +9,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       starts_at: '2026-11-07T15:00:00+05:30', price_in_paise: 39900, highlights: ['Live performances', 'Musical jamming & sing-along sessions', 'DJ sets', 'Lineup to be announced'],
       status: 'active',
       ticket_types: [
-        { ticket_type_id: 'local-early-bird', code: 'early-bird', name: 'Early Bird', description: '₹500 venue cover charge payable directly at the venue and 100% redeemable on food and beverages.', price_in_paise: 39900 },
-        { ticket_type_id: 'local-phase-1', code: 'phase-1', name: 'Phase 1', description: '₹500 venue cover charge payable directly at the venue and 100% redeemable on food and beverages.', price_in_paise: 59900 },
-        { ticket_type_id: 'local-phase-2', code: 'phase-2', name: 'Phase 2', description: '₹500 venue cover charge payable directly at the venue and 100% redeemable on food and beverages.', price_in_paise: 79900 }
+        { ticket_type_id: 'local-early-bird', code: 'early-bird', name: 'Early Bird', description: '₹500 venue cover charge payable directly at the venue and 100% redeemable on food and beverages.', price_in_paise: 39900, inventory_left: 18, status: 'disabled' },
+        { ticket_type_id: 'local-phase-1', code: 'phase-1', name: 'Phase 1', description: '₹500 venue cover charge payable directly at the venue and 100% redeemable on food and beverages.', price_in_paise: 59900, inventory_left: 130, status: 'active' },
+        { ticket_type_id: 'local-phase-2', code: 'phase-2', name: 'Phase 2', description: '₹500 venue cover charge payable directly at the venue and 100% redeemable on food and beverages.', price_in_paise: 79900, inventory_left: 249, status: 'active' }
       ], gallery: ['./aarpoo-irroo-theme/assets/images/gallery/aarpoo-vol-03.jpg', './aarpoo-irroo-theme/assets/images/gallery/crowd-cheering.jpg']
     }
   };
@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     renderEvent(event);
-    document.getElementById('event-booking').hidden = true;
-    document.getElementById('event-book-link').hidden = true;
+    // Keep the booking UI available for the active local fallback as well.
+    // It will submit only after the Cloudflare/Supabase environment is configured.
   }
 });
 
