@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <a class="btn-gold" href="./event.html?slug=${encodeURIComponent(event.slug)}" style="margin-top:1rem;display:inline-block;">Book Tickets →</a>
         </div>
       </article>`;
-    }).join('') : '<p style="color:var(--text-muted);">No published events yet. Check back soon.</p>';
+    }).join('');
     if (events.length > 3) {
       const cards = [...catalog.children];
       let start = 0;
