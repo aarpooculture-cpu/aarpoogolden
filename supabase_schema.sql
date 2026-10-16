@@ -18,7 +18,6 @@ CREATE TABLE public.events (
     highlights JSONB NOT NULL DEFAULT '[]'::jsonb,
     gallery JSONB NOT NULL DEFAULT '[]'::jsonb,
     price_in_paise INTEGER NOT NULL DEFAULT 39900,
-    available_capacity INTEGER NOT NULL DEFAULT 0,
     status VARCHAR(50) NOT NULL DEFAULT 'active',
     is_published BOOLEAN NOT NULL DEFAULT true,
     sort_order INTEGER NOT NULL DEFAULT 0,
@@ -34,7 +33,9 @@ CREATE TABLE public.ticket_types (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price_in_paise INTEGER NOT NULL CHECK (price_in_paise >= 0),
-    capacity INTEGER CHECK (capacity IS NULL OR capacity >= 0),
+    inventory_total INTEGER NOT NULL DEFAULT 0 CHECK (inventory_total >= 0),
+    inventory_booked INTEGER NOT NULL DEFAULT 0 CHECK (inventory_booked >= 0),
+    inventory_left INTEGER NOT NULL DEFAULT 0 CHECK (inventory_left >= 0),
     status VARCHAR(50) NOT NULL DEFAULT 'active',
     sales_start TIMESTAMP WITH TIME ZONE,
     sales_end TIMESTAMP WITH TIME ZONE,
@@ -98,30 +99,21 @@ CREATE TABLE public.payment_transactions (
 );
 
 -- Insert dummy event to match fallback in code
-INSERT INTO public.events (event_id, slug, title, price_in_paise, available_capacity, status)
+INSERT INTO public.events (event_id, slug, title, price_in_paise, status)
 VALUES (
     '00000000-0000-0000-0000-000000000003', 
     'aarpoo-vol-03', 
-    'AARPOO Vol. 03 — Bombay Cocktail Bar', 
+    'Aarpoo Vol. 03 — Mumbai',
     39900, 
-    455, 
     'active'
 ) ON CONFLICT (event_id) DO NOTHING;
 
-INSERT INTO public.ticket_types (event_id, code, name, description, price_in_paise, capacity, status, sort_order)
+INSERT INTO public.ticket_types (event_id, code, name, description, price_in_paise, inventory_total, inventory_booked, inventory_left, status, sort_order)
 VALUES
-    ('00000000-0000-0000-0000-000000000003', 'normal-early-bird', 'Normal — Early Bird', 'Lowest price phase • Includes ₹399 cover charge', 39900, 150, 'active', 10),
-    ('00000000-0000-0000-0000-000000000003', 'normal-phase-1', 'Normal — Phase 1', 'First regular phase • Includes ₹399 cover charge', 59900, 150, 'active', 20),
-    ('00000000-0000-0000-0000-000000000003', 'normal-phase-2', 'Normal — Phase 2', 'Final general entry phase • Includes ₹399 cover charge', 79900, 100, 'active', 30),
-    ('00000000-0000-0000-0000-000000000003', 'vip-early-bird', 'VIP — Early Bird', 'Stage-side & backstage access • Includes ₹399 cover charge', 79900, 35, 'active', 40),
-    ('00000000-0000-0000-0000-000000000003', 'vip-premium-access', 'VIP — Premium Access', 'Premium stage-side & backstage pass • Includes ₹399 cover charge', 99900, 20, 'active', 50)
-ON CONFLICT (event_id, code) DO UPDATE SET
-    name = EXCLUDED.name,
-    description = EXCLUDED.description,
-    price_in_paise = EXCLUDED.price_in_paise,
-    capacity = EXCLUDED.capacity,
-    status = EXCLUDED.status,
-    sort_order = EXCLUDED.sort_order;
+    ('00000000-0000-0000-0000-000000000003', 'normal-early-bird', 'Normal — Early Bird', 'Get in early and secure your entry at the lowest price. Additional ₹500 venue cover charge per person, payable at the venue and 100% redeemable on food and beverages.', 39900, 50, 32, 18, 'disabled', 10),
+    ('00000000-0000-0000-0000-000000000003', 'normal-phase-1', 'Normal — Phase 1', 'General entry at our first regular ticket phase. Additional ₹500 venue cover charge per person, payable at the venue and 100% redeemable on food and beverages.', 59900, 150, 20, 130, 'active', 20),
+    ('00000000-0000-0000-0000-000000000003', 'normal-phase-2', 'Normal — Phase 2', 'Final phase of general entry tickets. Additional ₹500 venue cover charge per person, payable at the venue and 100% redeemable on food and beverages.', 79900, 250, 1, 249, 'active', 30)
+ON CONFLICT (event_id, code) DO NOTHING;
 
 -- Safe upgrades for an existing database created from the earlier schema.
 ALTER TABLE public.events ADD COLUMN IF NOT EXISTS short_description TEXT;
@@ -143,7 +135,36 @@ ALTER TABLE public.tickets ADD COLUMN IF NOT EXISTS unit_price_in_paise INTEGER 
 
 UPDATE public.events
 SET short_description = COALESCE(short_description, 'The ultimate Malayali cultural festival in Mumbai.'),
-    venue_name = COALESCE(venue_name, 'Bombay Cocktail Bar'),
-    venue_address = COALESCE(venue_address, 'Andheri West, Mumbai'),
-    hero_image_url = COALESCE(hero_image_url, '/aarpoo-irroo-theme/assets/images/gallery/aarpoo-banner.jpg')
+    description = COALESCE(description, 'Get ready for an electrifying evening packed with music, entertainment, energy, and unforgettable vibes at NAYRA Mumbai. AARPOO brings together the Malayali community across Mumbai for live performances, musical jamming and sing-along sessions, DJ sets and immersive festival experiences.'),
+    venue_name = COALESCE(venue_name, 'Nayra'),
+    venue_address = COALESCE(venue_address, 'Lower Parel, Mumbai'),
+    starts_at = COALESCE(starts_at, '2026-11-07T15:00:00+05:30'::timestamptz),
+    ends_at = COALESCE(ends_at, '2026-11-07T19:00:00+05:30'::timestamptz),
+    lineup = CASE WHEN lineup = '[]'::jsonb THEN '["To be announced"]'::jsonb ELSE lineup END,
+    hero_image_url = COALESCE(hero_image_url, '/aarpoo-irroo-theme/assets/images/gallery/aarpoo-vol-03.jpg')
+WHERE slug = 'aarpoo-vol-03';
+
+INSERT INTO public.events (event_id, slug, title, short_description, description, venue_name, venue_address, starts_at, status, is_published, sort_order, price_in_paise)
+VALUES
+('00000000-0000-0000-0000-000000000001', 'aarpoo-vol-01', 'Aarpoo Irroo Vol. 01', 'Our inaugural festival — a packed room of Mumbai Malayalis, live music, jamming, close-up magic and songs everyone knew by heart.', 'Sold out, high on energy, and the reason Aarpoo Vol. 02 exists.', 'De Aura — Global Dining & Bar', 'Majiwada, Thane', '2026-06-14T19:30:00+05:30', 'past', true, 3, 39900),
+('00000000-0000-0000-0000-000000000002', 'aarpoo-vol-02', 'Aarpoo Vol. 02', 'A full-throttle Malayali night — comedy, flute, live vocals and DJ.', 'A sold-out Thane chapter with Vishnu Pai, James Thakara, Abhiram RJ, flute live and DJ Aarpoo.', 'De Aura — Global Dining & Bar', 'Majiwada, Thane', '2026-08-09T19:30:00+05:30', 'past', true, 2, 39900)
+ON CONFLICT (event_id) DO UPDATE SET
+  title = EXCLUDED.title, short_description = EXCLUDED.short_description, description = EXCLUDED.description,
+  venue_name = EXCLUDED.venue_name, venue_address = EXCLUDED.venue_address, starts_at = EXCLUDED.starts_at,
+  status = EXCLUDED.status, is_published = EXCLUDED.is_published, sort_order = EXCLUDED.sort_order;
+
+-- Vol. 03 production details (safe to run after the base schema).
+UPDATE public.events
+SET title = 'Aarpoo Vol. 03 — Mumbai',
+    short_description = 'AARPOO – Mumbai''s Biggest Malayali Festival.',
+    description = 'Get ready for an electrifying evening packed with music, entertainment, energy, and unforgettable vibes at NAYRA Mumbai. AARPOO brings together the Malayali community across Mumbai for live performances, musical jamming and sing-along sessions, DJ sets and immersive festival experiences.',
+    hero_image_url = '/aarpoo-irroo-theme/assets/images/gallery/aarpoo-vol-03.jpg',
+    venue_name = 'Nayra',
+    venue_address = 'Lower Parel, Mumbai',
+    starts_at = '2026-11-07T15:00:00+05:30',
+    ends_at = '2026-11-07T19:00:00+05:30',
+    lineup = '["To be announced"]'::jsonb,
+    sort_order = 1,
+    status = 'active',
+    is_published = true
 WHERE slug = 'aarpoo-vol-03';

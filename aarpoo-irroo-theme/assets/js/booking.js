@@ -1,16 +1,38 @@
 /**
  * Aarpoo Irroo - Interactive Booking Engine & Micro-Interactions
- * Handles 1-6 seat selection, dynamic price updates, Razorpay API checkout,
+ * Handles 1-10 seat selection, dynamic price updates, Razorpay API checkout,
  * accordion toggles, partner form submissions, and scroll entrance animations.
  */
 
+// Apply the public-facing brand name consistently across static and dynamic page content.
+function applyAarpooCultureBrand() {
+  const replaceBrand = (value) => value
+    .replace(/AARPOO IRROO/g, 'AARPOO CULTURE')
+    .replace(/Aarpoo Irroo/g, 'Aarpoo Culture')
+    .replace(/aarpoo irroo/g, 'aarpoo culture');
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach((node) => { node.nodeValue = replaceBrand(node.nodeValue); });
+  document.title = replaceBrand(document.title);
+  document.querySelectorAll('.footer-bottom-bar').forEach((bar) => {
+    bar.innerHTML = '<div>© 2026 Aarpoo Culture</div><div>Aarpoo Culture — connecting the Malayali diaspora closer to home</div>';
+  });
+  document.querySelectorAll('a[href="mailto:aarpooirroo@gmail.com"]').forEach((link) => {
+    link.href = 'mailto:aarpooculture@gmail.com';
+    link.textContent = 'aarpooculture@gmail.com';
+  });
+  document.querySelectorAll('.site-header .nav-link').forEach((link) => {
+    link.style.setProperty('color', '#fff8ed', 'important');
+    link.style.setProperty('-webkit-text-fill-color', '#fff8ed', 'important');
+  });
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyAarpooCultureBrand);
+else applyAarpooCultureBrand();
+
 document.addEventListener('DOMContentLoaded', function () {
-  // Config defaults (overridden by wp_localize_script aarpooData if available)
-  const config = window.aarpooData || {
-    restUrl: '/api/',
-    ticketPrice: 399,
-    razorpayKeyId: 'rzp_test_TiLAW209X0NOcn'
-  };
+  const config = window.aarpooData || { ticketPrice: 399 };
 
   let selectedSeats = 1;
   const ticketPrice = parseInt(config.ticketPrice, 10) || 399;
@@ -96,6 +118,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (ticketTierDisplayEl) ticketTierDisplayEl.textContent = '₹' + activeTicketPrice.toLocaleString('en-IN');
     if (coverTotalEl) coverTotalEl.textContent = '₹' + coverTotal.toLocaleString('en-IN');
     if (seatsInputEl) seatsInputEl.value = seats;
+    document.getElementById('summary-quantity')?.replaceChildren(String(seats));
+    document.getElementById('summary-seat-count')?.replaceChildren(String(seats));
+    document.getElementById('summary-ticket-name')?.replaceChildren(activeTicketName || 'Selected ticket');
+    document.getElementById('pay-button-total')?.replaceChildren('₹' + total.toLocaleString('en-IN'));
 
     // Update Header Live Cart Bar (Reference layout matching)
     if (headerCartCountEl) headerCartCountEl.textContent = seats;
@@ -103,13 +129,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Show/hide group notice for >= 6 seats
     if (groupNoticeEl) {
-      if (seats >= 6) {
+      if (seats >= 10) {
         groupNoticeEl.classList.add('visible');
       } else {
         groupNoticeEl.classList.remove('visible');
       }
     }
   }
+
+  document.querySelectorAll('[data-seat-step]').forEach(button => button.addEventListener('click', () => {
+    const next = Math.max(1, Math.min(10, selectedSeats + Number(button.dataset.seatStep || 0)));
+    document.querySelector(`.seat-num-btn[data-seats="${next}"]`)?.click();
+    updatePriceDisplay(next);
+  }));
 
   // Handle Ticket Tier Card Selection
   if (ticketOptionCards.length > 0) {
@@ -138,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Event pages load their ticket categories asynchronously from Supabase.
   document.addEventListener('ticket-types-loaded', function () {
-    const firstCard = document.querySelector('.ticket-option-card.active') || document.querySelector('.ticket-option-card');
+    const firstCard = document.querySelector('.ticket-option-card.active:not(.sold-out)') || document.querySelector('.ticket-option-card:not(.sold-out)');
     if (!firstCard) return;
     activeTicketPrice = parseInt(firstCard.getAttribute('data-ticket-price'), 10) || 399;
     activeTicketName = firstCard.getAttribute('data-ticket-name') || 'General Entry';
@@ -148,15 +180,45 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   document.addEventListener('click', function (event) {
+    const ticketStep = event.target.closest('[data-ticket-step]');
+    if (ticketStep) {
+      event.preventDefault();
+      event.stopPropagation();
+      const card = ticketStep.closest('.ticket-option-card');
+      if (!card) return;
+      document.querySelectorAll('.ticket-option-card').forEach(item => item.classList.remove('active'));
+      card.classList.add('active');
+      const valueEl = card.querySelector('.ticket-counter-value');
+      const current = parseInt(valueEl?.textContent || '0', 10) || 0;
+      if (card.dataset.ticketStatus === 'disabled') {
+        showBookingToast('Selected ticket type has been sold out.', 'error');
+        return;
+      }
+      const remaining = Number(card.dataset.inventoryLeft ?? 0);
+      const next = Math.max(1, Math.min(10, remaining, current + Number(ticketStep.dataset.ticketStep || 0)));
+      document.querySelectorAll('.ticket-counter-value').forEach(item => { if (item !== valueEl) item.textContent = '0'; });
+      if (valueEl) valueEl.textContent = String(next);
+      activeTicketPrice = parseInt(card.dataset.ticketPrice, 10) || 399;
+      activeTicketName = card.dataset.ticketName || 'Selected ticket';
+      activeTicketTypeId = card.dataset.ticketTypeId || '';
+      activeTicketTypeCode = card.dataset.ticketTypeCode || '';
+      updatePriceDisplay(next);
+      return;
+    }
     const card = event.target.closest('.ticket-option-card');
     if (!card || Array.from(ticketOptionCards).includes(card)) return;
+    if (card.dataset.ticketStatus === 'disabled') {
+      showBookingToast('Selected ticket type has been sold out.', 'error');
+      return;
+    }
     document.querySelectorAll('.ticket-option-card').forEach(item => item.classList.remove('active'));
     card.classList.add('active');
+    document.querySelectorAll('.ticket-counter-value').forEach(item => { item.textContent = item.closest('.ticket-option-card') === card ? '1' : '0'; });
     activeTicketPrice = parseInt(card.getAttribute('data-ticket-price'), 10) || 399;
     activeTicketName = card.getAttribute('data-ticket-name') || 'General Entry';
     activeTicketTypeId = card.getAttribute('data-ticket-type-id') || '';
     activeTicketTypeCode = card.getAttribute('data-ticket-type-code') || '';
-    updatePriceDisplay(selectedSeats);
+    updatePriceDisplay(Math.min(selectedSeats, Number(card.dataset.inventoryLeft ?? 0), 10));
   });
 
   if (seatBtns.length > 0) {
@@ -196,6 +258,11 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
+      if (!activeTicketTypeId || document.querySelector(`.ticket-option-card[data-ticket-type-id="${activeTicketTypeId}"]`)?.dataset.ticketStatus === 'disabled') {
+        showBookingToast('Please select an available ticket category.', 'error');
+        return;
+      }
+
       if (checkoutBtn) {
         checkoutBtn.disabled = true;
         checkoutBtn.textContent = 'Saving booking...';
@@ -217,32 +284,36 @@ document.addEventListener('DOMContentLoaded', function () {
           displayed_amount: selectedSeats * activeTicketPrice * 100
         };
 
-        let res = await safeFetchJson('/api/create-order', {
+        const res = await safeFetchJson('/api/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(bookingPayload)
         });
-
-        // Fallback to WP REST endpoint if Netlify serverless function returned non-JSON / network error
-        if (!res.data && !res.ok) {
-          let orderEndpoint = `${config.restUrl}create-order`;
-          if (config.restUrl === '/wp-json/') {
-            orderEndpoint = `${config.restUrl}aarpoo/v1/create-order`;
-          }
-          const fallbackRes = await safeFetchJson(orderEndpoint, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-WP-Nonce': config.nonce || ''
-            },
-            body: JSON.stringify(bookingPayload)
-          });
-          if (fallbackRes.data) res = fallbackRes;
+        if (!res.data && ['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+          throw new Error('Bookings require the Cloudflare Pages preview or live site. This static local preview cannot submit bookings.');
         }
 
         const orderData = res.data || {};
 
         if (!orderData.success) {
+          if (orderData.code === 'INVENTORY_CHANGED') {
+            const card = document.querySelector(`.ticket-option-card[data-ticket-type-id="${activeTicketTypeId}"]`);
+            if (card) card.dataset.inventoryLeft = String(orderData.inventory_left);
+            updatePriceDisplay(Math.min(selectedSeats, Number(orderData.inventory_left)));
+            showBookingToast(orderData.message, 'error');
+            return;
+          }
+          if (orderData.code === 'TICKET_SOLD_OUT') {
+            const soldOutCard = document.querySelector(`.ticket-option-card[data-ticket-type-id="${activeTicketTypeId}"]`);
+            if (soldOutCard) {
+              soldOutCard.dataset.ticketStatus = 'disabled';
+              soldOutCard.classList.add('sold-out');
+              soldOutCard.querySelector('.ticket-inline-counter')?.remove();
+              soldOutCard.insertAdjacentHTML('beforeend', '<span class="ticket-sold-out-label">Sold Out</span>');
+            }
+            showBookingToast('Selected ticket type has been sold out.', 'error');
+            return;
+          }
           const errMsg = orderData.message || 'We could not save your booking. Please try again.';
           throw new Error(errMsg);
         }
@@ -276,78 +347,6 @@ document.addEventListener('DOMContentLoaded', function () {
     toast.style.cssText = `position:fixed;right:1.25rem;bottom:1.25rem;z-index:100000;max-width: min(420px, calc(100vw - 2.5rem));padding:1rem 1.25rem;border-radius:12px;color:#fff;background:${type === 'error' ? '#b42318' : '#087443'};box-shadow:0 12px 30px rgba(0,0,0,.2);font-weight:700;line-height:1.4;`;
     document.body.appendChild(toast);
     window.setTimeout(() => toast.remove(), type === 'error' ? 5000 : 7000);
-  }
-
-  async function verifyPaymentServerSide(paymentPayload) {
-    try {
-      let res = await safeFetchJson('/api/verify-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(paymentPayload)
-      });
-
-      if (!res.ok) {
-        let verifyEndpoint = `${config.restUrl}verify-payment`;
-        if (config.restUrl === '/wp-json/') {
-          verifyEndpoint = `${config.restUrl}aarpoo/v1/verify-payment`;
-        }
-        res = await safeFetchJson(verifyEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-WP-Nonce': config.nonce || ''
-          },
-          body: JSON.stringify(paymentPayload)
-        });
-      }
-
-      const resData = res.data || {};
-
-      if (res.ok && resData.success) {
-        showSuccessModal(resData, paymentPayload);
-        if (bookingForm) bookingForm.reset();
-        updatePriceDisplay(1);
-      } else {
-        alert('Payment verification status: ' + (resData.message || 'Payment confirmed'));
-      }
-    } catch (e) {
-      alert('Verification completed: ' + e.message);
-    } finally {
-      resetCheckoutBtn();
-    }
-  }
-
-  function showSuccessModal(resData, payload) {
-    const ticketNum = resData.ticket_number || resData.booking_id || ('ARPOO-VOL2-' + Math.floor(1000 + Math.random() * 9000));
-    const modalHtml = `
-      <div id="booking-success-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
-        <div style="background:#141622;border:2px solid #FF3E24;border-radius:20px;padding:2.5rem;max-width:540px;width:100%;text-align:center;box-shadow:0 0 40px rgba(255,62,36,0.4);color:#FFF;position:relative;">
-          <div style="width:64px;height:64px;background:rgba(255,62,36,0.2);color:#FF3E24;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.25rem;">✓</div>
-          <h3 style="font-size:1.8rem;font-weight:800;margin-bottom:0.5rem;">Ticket Confirmed!</h3>
-          <p style="color:#9CA3AF;margin-bottom:1.5rem;">Aarpoo Vol. 02 • De Aura, Thane</p>
-          <div style="background:rgba(255,255,255,0.04);padding:1.25rem;border-radius:12px;text-align:left;font-size:0.95rem;margin-bottom:1.5rem;border:1px solid rgba(255,255,255,0.08);">
-            <p><strong>Serial Ticket Number:</strong> <span style="color:#FFB84D;font-weight:800;">${ticketNum}</span></p>
-            <p><strong>Name:</strong> ${payload.name}</p>
-            <p><strong>Email:</strong> ${payload.email}</p>
-            <p><strong>Seats Reserved:</strong> ${payload.seats}</p>
-            <p><strong>Total Paid:</strong> ₹${payload.amount.toLocaleString('en-IN')}</p>
-            <p><strong>Razorpay Payment ID:</strong> ${payload.razorpay_payment_id}</p>
-          </div>
-          <p style="font-size:0.85rem;color:#FF6B35;margin-bottom:1.5rem;">Confirmation email and entry QR code pass have been dispatched to ${payload.email}.</p>
-          <button id="close-modal-btn" class="btn-glow" style="width:100%;">Awesome, See You There! 🎉</button>
-        </div>
-      </div>
-    `;
-
-    const existingModal = document.getElementById('booking-success-modal');
-    if (existingModal) existingModal.remove();
-
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-    document.getElementById('close-modal-btn').addEventListener('click', function () {
-      const modal = document.getElementById('booking-success-modal');
-      if (modal) modal.remove();
-    });
   }
 
   // --------------------------------------------------------------------------
@@ -407,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // --------------------------------------------------------------------------
-  // 5. Partner & Contact Form Submissions with Netlify Fallbacks
+  // 5. Partner & Contact Form Submissions through Cloudflare Functions
   // --------------------------------------------------------------------------
   const partnerForm = document.getElementById('aarpoo-partner-form');
   if (partnerForm) {
@@ -430,19 +429,12 @@ document.addEventListener('DOMContentLoaded', function () {
       };
 
       try {
-        let res = await safeFetchJson(`${config.restUrl}aarpoo/v1/submit-partner`, {
+        const res = await safeFetchJson('/api/submit-partner', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce || '' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         });
-
-        if (!res.ok) {
-          res = await safeFetchJson('/api/submit-partner', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-          });
-        }
+        if (!res.ok || !res.data?.success) throw new Error(res.data?.message || 'Inquiry could not be sent.');
 
         const msg = (res.data && res.data.message) ? res.data.message : 'Thank you! Your partnership inquiry has been received. Our brand team will reach out shortly.';
         alert(msg);
@@ -477,19 +469,12 @@ document.addEventListener('DOMContentLoaded', function () {
       };
 
       try {
-        let res = await safeFetchJson(`${config.restUrl}aarpoo/v1/submit-contact`, {
+        const res = await safeFetchJson('/api/submit-contact', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce || '' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         });
-
-        if (!res.ok) {
-          res = await safeFetchJson('/api/submit-contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-          });
-        }
+        if (!res.ok || !res.data?.success) throw new Error(res.data?.message || 'Message could not be sent.');
 
         const msg = (res.data && res.data.message) ? res.data.message : 'Thank you for reaching out! We have received your message and will get back to you shortly.';
         alert(msg);
@@ -789,15 +774,15 @@ document.addEventListener('DOMContentLoaded', function () {
       stickyBar.className = 'mobile-sticky-bar';
       stickyBar.innerHTML = `
         <div class="bar-info">
-          <span class="bar-title">Aarpoo Vol. 02</span>
-          <span class="bar-price">₹599 / Seat • Early Bird</span>
+          <span class="bar-title">Aarpoo Vol. 03</span>
+          <span class="bar-price">See available tickets</span>
         </div>
-        <a href="booking.html" class="btn-gold">Book Now →</a>
+        <a href="./event.html?slug=aarpoo-vol-03#event-booking" class="btn-gold">Book Tickets →</a>
       `;
       document.body.appendChild(stickyBar);
     }
 
-    const bookingSection = document.getElementById('booking-section');
+    const bookingSection = document.getElementById('event-booking');
     const heroSection = document.getElementById('hero');
 
     function checkStickyVisibility() {

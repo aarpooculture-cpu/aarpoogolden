@@ -1,6 +1,5 @@
-import { runNetlifyHandler } from '../_netlify-adapter.js';
-import { handler } from '../../netlify/functions/verify-payment.js';
+import { json } from '../_lib/supabase.js';
 
-export function onRequest(context) {
-  return runNetlifyHandler(context.request, handler);
+export function onRequest() {
+  return json({ success: false, message: 'Razorpay payment verification is disabled.' }, 410);
 }
