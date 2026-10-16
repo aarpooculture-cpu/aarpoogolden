@@ -71,7 +71,7 @@ BEGIN
     unit_price_in_paise, customer_name, customer_email, customer_phone,
     seats, amount, status, invoice_id, invoice_url, email_sent, email_sent_at
   ) VALUES (
-    'ARPOO-' || upper(replace(uuid_generate_v4()::text, '-', '')),
+    'ARPOO-' || upper(replace(gen_random_uuid()::text, '-', '')),
     p_event_id, p_ticket_type_id, selected_type.name,
     selected_type.price_in_paise, trim(p_customer_name), trim(p_customer_email), trim(p_customer_phone),
     p_requested, p_requested * selected_type.price_in_paise / 100.0,
