@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!response.ok || !payload.success) throw new Error('Unable to load events.');
 
-    catalog.innerHTML = events.length ? events.map(event => {
+    if (!events.length) throw new Error('No published events returned.');
+    catalog.innerHTML = events.map(event => {
       const price = ((event.price_in_paise || 0) / 100).toLocaleString('en-IN');
       const image = event.hero_image_url || './aarpoo-irroo-theme/assets/images/gallery/aarpoo-banner.jpg';
       const date = event.starts_at ? new Date(event.starts_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Date to be announced';
