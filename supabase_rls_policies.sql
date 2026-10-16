@@ -19,7 +19,7 @@ DROP POLICY IF EXISTS "Allow public read access to events" ON public.events;
 DROP POLICY IF EXISTS "Public can read published active events" ON public.events;
 CREATE POLICY "Public can read published active events"
   ON public.events FOR SELECT TO anon, authenticated
-  USING (is_published = true AND status = 'active');
+  USING (is_published = true AND status IN ('active', 'past'));
 
 DROP POLICY IF EXISTS "Public can read active ticket types" ON public.ticket_types;
 CREATE POLICY "Public can read active ticket types"

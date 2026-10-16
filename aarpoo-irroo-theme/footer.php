@@ -38,7 +38,7 @@
             <div>
                 <h5 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#FAF6F0; margin-bottom:1rem;">Community</h5>
                 <ul class="footer-links-group">
-                    <li><a href="https://instagram.com" target="_blank" rel="noopener" style="color:#C2B8AF;">Instagram (@aarpooirroo)</a></li>
+                    <li><a href="https://www.instagram.com/aarpooculture" target="_blank" rel="noopener" style="color:#C2B8AF;">Instagram (@aarpooculture)</a></li>
                     <li><a href="https://whatsapp.com" target="_blank" rel="noopener" style="color:#C2B8AF;">Thane Malayali WhatsApp Adda</a></li>
                     <li><a href="https://youtube.com" target="_blank" rel="noopener" style="color:#C2B8AF;">YouTube Highlights</a></li>
                 </ul>

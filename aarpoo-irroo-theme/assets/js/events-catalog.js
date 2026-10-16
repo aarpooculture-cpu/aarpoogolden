@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <h3>${escapeHtml(event.title)}</h3>
           <p>${escapeHtml(event.short_description || '')}</p>
           <small>${date} · From ₹${price}</small>
-          <a class="btn-gold" href="/events/${encodeURIComponent(event.slug)}" style="margin-top:1rem;display:inline-block;">Reserve Your Seat →</a>
+          <a class="btn-gold" href="./event.html?slug=${encodeURIComponent(event.slug)}" style="margin-top:1rem;display:inline-block;">Book Tickets →</a>
         </div>
       </article>`;
     }).join('') : '<p style="color:var(--text-muted);">No published events yet. Check back soon.</p>';
@@ -35,10 +35,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch (error) {
     catalog.innerHTML = [
-      ['aarpoo-vol-03', 'AARPOO Vol. 03 — Mumbai', 'The ultimate Malayali festival in Mumbai.', '₹399'],
-      ['aarpoo-vol-02', 'AARPOO Vol. 02 — Thane', 'Comedy, flute fusion, live vocals and DJ.', 'Sold out'],
-      ['aarpoo-vol-01', 'AARPOO Vol. 01 — Thane', 'The inaugural Aarpoo Irroo community night.', 'Archive']
-    ].map(([slug, title, description, price]) => `<article class="act-card-box fade-in-up"><span class="section-kicker">Aarpoo Irroo</span><h3 class="act-heading">${title}</h3><p class="act-body">${description}</p><a class="btn-gold" href="/events/${slug}" style="margin-top:1rem;display:inline-block;">Reserve Your Seat →</a><small style="display:block;margin-top:.75rem;color:var(--text-muted);">${price}</small></article>`).join('');
+      ['aarpoo-vol-03', 'Aarpoo Vol. 03', "AARPOO – Mumbai's Biggest Malayali Festival. Music, entertainment, energy and unforgettable vibes at NAYRA Mumbai.", '7 November 2026 · From ₹399', 'UPCOMING · ON SALE', 'aarpoo-vol-03.jpg', 'Book Tickets'],
+      ['aarpoo-vol-02', 'Aarpoo Vol. 02', 'A full-throttle Malayali night with comedy, flute, live vocals and DJ. Sold out.', 'Past event · Sold out', 'PAST · SOLD OUT', 'aarpoo-banner.jpg', 'View Event'],
+      ['aarpoo-vol-01', 'Aarpoo Vol. 01', 'The inaugural Aarpoo community night — packed, high-energy and sold out.', 'Past event · Sold out', 'PAST · SOLD OUT', 'aarpoo-banner.jpg', 'View Event']
+    ].map(([slug, title, description, price, status, image, cta]) => `<article class="act-card-box photo-card fade-in-up"><img src="./aarpoo-irroo-theme/assets/images/gallery/${image}" alt="${title}" loading="lazy" decoding="async"><div class="photo-caption-overlay"><span class="section-kicker">${status}</span><h3 class="act-heading">${title}</h3><p class="act-body">${description}</p><small style="display:block;margin-top:.75rem;color:var(--text-muted);">${price}</small><a class="btn-gold" href="./event.html?slug=${slug}" style="margin-top:1rem;display:inline-block;">${cta} →</a></div></article>`).join('');
     console.error(error);
   }
 

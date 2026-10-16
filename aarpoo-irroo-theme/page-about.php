@@ -62,7 +62,7 @@ get_header();
 
                 <div style="text-align:center; padding-top:1.5rem; border-top:1px solid var(--border-warm);">
                     <a href="<?php echo esc_url(home_url('/#booking-section')); ?>" class="btn-gold">
-                        Reserve Your Seat For Vol. 02 →
+                        Book Tickets →
                     </a>
                 </div>
             </div>
