@@ -1,4 +1,5 @@
 import { createTicketWithInventory, findTicketType, getClient, getEventBySlug, json } from '../_lib/supabase.js';
+import { createHostedCheckoutFields } from '../_lib/payu.js';
 
 export async function onRequest({ request, env }) {
   if (request.method === 'OPTIONS') return json({}, 200);
@@ -18,7 +19,10 @@ export async function onRequest({ request, env }) {
     if (ticketType.status === 'disabled' || Number(ticketType.inventory_left) === 0) return json({ success: false, code: 'TICKET_SOLD_OUT', message: 'Selected ticket type has been sold out.' }, 409);
     const ticketResult = await createTicketWithInventory(client, { event_id: eventRecord.event_id, ticket_type_id: ticketType.ticket_type_id, customer_name: payload.name.trim(), customer_email: payload.email.trim(), customer_phone: payload.phone.trim(), seats });
     if (!ticketResult.success) return json({ success: false, code: ticketResult.code, inventory_left: ticketResult.inventory_left, message: ticketResult.message || ticketResult.error?.message || 'Failed to create booking in database.' }, ['TICKET_SOLD_OUT', 'INVENTORY_CHANGED'].includes(ticketResult.code) ? 409 : 500);
-    return json({ ...ticketResult, booking_initiated: true, message: 'Your booking request has been received. We will contact you offline for payment.' });
+    if (!env.PAYU_TEST_KEY || !env.PAYU_TEST_SALT) return json({ success: false, message: 'Payment service is not configured.' }, 500);
+    const callbackBaseUrl = new URL(request.url).origin;
+    const checkout = await createHostedCheckoutFields({ key: env.PAYU_TEST_KEY, salt: env.PAYU_TEST_SALT, ticket: { ...ticketResult, ticket_id: ticketResult.ticket_id, ticket_number: ticketResult.ticket_number, ticket_type_name: ticketResult.ticket_type, customer_name: payload.name.trim(), customer_email: payload.email.trim(), customer_phone: payload.phone.trim(), amount: ticketResult.amount }, eventSlug: eventRecord.slug, callbackBaseUrl });
+    return json({ ...ticketResult, booking_initiated: true, payment_provider: 'payu_test', payu_checkout: checkout, message: 'Redirecting to secure payment.' });
   } catch (error) {
     console.error('[Cloudflare] Booking error:', error);
     return json({ success: false, message: 'Internal server error while creating booking.' }, 500);

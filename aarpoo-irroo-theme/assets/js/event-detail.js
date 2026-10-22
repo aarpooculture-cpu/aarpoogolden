@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.dispatchEvent(new CustomEvent('ticket-types-loaded'));
     } else {
       ticketTypesEl.innerHTML = '<p style="color:var(--text-muted);">Ticket sales are not open for this event.</p>';
-      document.getElementById('btn-razorpay-checkout').disabled = true;
+      document.getElementById('btn-payment-checkout').disabled = true;
     }
 
     const image = event.hero_image_url || './aarpoo-irroo-theme/assets/images/gallery/aarpoo-banner.jpg';

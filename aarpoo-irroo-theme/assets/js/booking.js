@@ -1,6 +1,6 @@
 /**
  * Aarpoo Irroo - Interactive Booking Engine & Micro-Interactions
- * Handles 1-10 seat selection, dynamic price updates, Razorpay API checkout,
+ * Handles 1-10 seat selection, dynamic price updates, and payment-provider checkout,
  * accordion toggles, partner form submissions, and scroll entrance animations.
  */
 
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // 2. Booking intent flow (payment integration intentionally paused)
   // --------------------------------------------------------------------------
   const bookingForm = document.getElementById('aarpoo-booking-form');
-  const checkoutBtn = document.getElementById('btn-razorpay-checkout');
+  const checkoutBtn = document.getElementById('btn-payment-checkout');
 
   if (bookingForm) {
     bookingForm.addEventListener('submit', async function (e) {
@@ -269,8 +269,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       try {
-        // The backend records the booking intent only. Razorpay remains available
-        // in the repository for the later payment-enabled phase.
+        // The backend records the booking intent only until the approved payment
+        // provider is connected.
         const bookingPayload = {
           event_slug: bookingForm.dataset.eventSlug || 'aarpoo-vol-03',
           event_id: bookingForm.dataset.eventId || '',
@@ -318,9 +318,20 @@ document.addEventListener('DOMContentLoaded', function () {
           throw new Error(errMsg);
         }
 
-        showBookingToast(`Booking request received. Reference: ${orderData.ticket_number || 'saved'}. We will contact you for payment.`, 'success');
-        if (bookingForm) bookingForm.reset();
-        updatePriceDisplay(1);
+        if (orderData.payu_checkout?.action && orderData.payu_checkout?.fields) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = orderData.payu_checkout.action;
+          Object.entries(orderData.payu_checkout.fields).forEach(([name, value]) => {
+            const input = document.createElement('input');
+            input.type = 'hidden'; input.name = name; input.value = value ?? '';
+            form.appendChild(input);
+          });
+          document.body.appendChild(form);
+          form.submit();
+          return;
+        }
+        throw new Error('Payment checkout could not be started.');
       } catch (err) {
         showBookingToast(err.message || 'We could not save your booking. Please try again.', 'error');
       } finally {

@@ -39,6 +39,17 @@ export async function findTicketType(client, eventId, ticketTypeId, code) {
   return error ? null : data;
 }
 
+export async function getTicketByNumber(client, ticketNumber) {
+  if (!client || !ticketNumber) return null;
+  const { data, error } = await client.from('tickets').select('*').eq('ticket_number', ticketNumber).single();
+  return error ? null : data;
+}
+
+export async function updateTicketStatus(client, ticketNumber, status) {
+  const { data, error } = await client.from('tickets').update({ status, updated_at: new Date().toISOString() }).eq('ticket_number', ticketNumber).select().single();
+  return { data, error };
+}
+
 export async function createTicketWithInventory(client, data) {
   const { data: result, error } = await client.rpc('create_ticket_with_inventory', {
     p_event_id: data.event_id,

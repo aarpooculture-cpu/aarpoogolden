@@ -4,5 +4,5 @@ compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "."
 
 [vars]
-# Add non-secret configuration here only. Store Supabase and Razorpay secrets
+# Add non-secret configuration here only. Store Supabase and payment-provider secrets
 # in the Cloudflare dashboard under Settings → Variables and Secrets.
