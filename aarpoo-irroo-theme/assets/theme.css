@@ -1198,9 +1198,9 @@ img {
 }
 
 /* --------------------------------------------------------------------------
-   12. Official Razorpay Payment Buttons & Security Badges
+   12. Payment Buttons & Security Badges
    -------------------------------------------------------------------------- */
-.btn-razorpay-pay {
+.btn-payment-pay {
   width: 100%;
   display: flex;
   align-items: center;
@@ -1222,18 +1222,18 @@ img {
   overflow: hidden;
 }
 
-.btn-razorpay-pay:hover {
+.btn-payment-pay:hover {
   background: linear-gradient(135deg, #0c3570 0%, #114287 50%, #1852a3 100%);
   box-shadow: 0 8px 30px rgba(51, 149, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
   border-color: #3395FF;
 }
 
-.btn-razorpay-pay:active {
+.btn-payment-pay:active {
   transform: translateY(0);
 }
 
-.btn-razorpay-pay .rzp-logo-badge {
+.btn-payment-pay .rzp-logo-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1243,7 +1243,7 @@ img {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.razorpay-method-badges {
+.payment-method-badges {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1270,7 +1270,7 @@ img {
   height: 14px;
 }
 
-.razorpay-trust-shield {
+.payment-trust-shield {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1280,7 +1280,7 @@ img {
   color: #9CA3AF;
 }
 
-.razorpay-trust-shield strong {
+.payment-trust-shield strong {
   color: #3395FF;
 }
 
@@ -1896,7 +1896,7 @@ img {
   }
 
   /* Payment */
-  .btn-razorpay-pay {
+  .btn-payment-pay {
     padding: 0.9rem 1.25rem;
     font-size: 0.92rem;
     gap: 0.5rem;
@@ -2012,7 +2012,7 @@ img {
   /* Full-width touch targets for primary action buttons */
   .btn-gold,
   .btn-outline,
-  .btn-razorpay-pay {
+  .btn-payment-pay {
     min-height: 48px;
     display: inline-flex;
     align-items: center;
@@ -2838,7 +2838,7 @@ body:has(.partner-hero) .inquiry-note { padding:2rem; }
   /* Full-width touch action buttons */
   .btn-gold,
   .btn-outline,
-  .btn-razorpay-pay {
+  .btn-payment-pay {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
