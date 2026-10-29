@@ -86,17 +86,22 @@ CREATE TABLE public.tickets (
 -- 5. Payment Transactions Table
 CREATE TABLE public.payment_transactions (
     transaction_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    razorpay_order_id VARCHAR(255),
+    provider VARCHAR(50) NOT NULL DEFAULT 'payu',
+    provider_order_id VARCHAR(255),
     amount DECIMAL(10, 2) NOT NULL,
     currency VARCHAR(10) NOT NULL DEFAULT 'INR',
     status VARCHAR(50) NOT NULL DEFAULT 'created', -- 'created', 'paid', 'signature_mismatch', 'failed'
-    razorpay_payment_id VARCHAR(255),
-    razorpay_signature VARCHAR(255),
+    provider_payment_id VARCHAR(255),
+    provider_reference VARCHAR(255),
+    provider_signature VARCHAR(255),
     ticket_id UUID REFERENCES public.tickets(ticket_id) ON DELETE SET NULL,
     raw_payload JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+CREATE UNIQUE INDEX payment_transactions_ticket_provider_reference_idx
+    ON public.payment_transactions (ticket_id, provider, provider_reference);
 
 -- Insert dummy event to match fallback in code
 INSERT INTO public.events (event_id, slug, title, price_in_paise, status)

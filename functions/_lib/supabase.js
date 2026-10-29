@@ -50,6 +50,23 @@ export async function updateTicketStatus(client, ticketNumber, status) {
   return { data, error };
 }
 
+export async function recordPaymentTransaction(client, payment) {
+  const { data, error } = await client.from('payment_transactions').upsert([{
+    provider: payment.provider,
+    provider_order_id: payment.provider_order_id || null,
+    provider_payment_id: payment.provider_payment_id || null,
+    provider_reference: payment.provider_reference || null,
+    amount: payment.amount,
+    currency: payment.currency || 'INR',
+    status: payment.status,
+    provider_signature: payment.provider_signature || null,
+    ticket_id: payment.ticket_id,
+    raw_payload: payment.raw_payload || null,
+    updated_at: new Date().toISOString()
+  }], { onConflict: 'ticket_id,provider,provider_reference' }).select().single();
+  return { data, error };
+}
+
 export async function createTicketWithInventory(client, data) {
   const { data: result, error } = await client.rpc('create_ticket_with_inventory', {
     p_event_id: data.event_id,
